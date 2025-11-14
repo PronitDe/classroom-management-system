@@ -14,6 +14,7 @@ import { ConflictWarning } from '@/components/ConflictWarning';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { bookingSchema } from '@/lib/validations';
 
 const TIME_SLOTS = [
   '9:00-10:30',
@@ -90,11 +91,25 @@ export default function BookRoom() {
       return;
     }
 
+    const formattedDate = format(date, 'yyyy-MM-dd');
+
+    // Validate input
+    const validation = bookingSchema.safeParse({
+      roomId,
+      date: formattedDate,
+      slot,
+      remarks,
+    });
+
+    if (!validation.success) {
+      const errors = validation.error.errors.map(e => e.message).join(', ');
+      toast.error(errors);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const formattedDate = format(date, 'yyyy-MM-dd');
-      
       const { error } = await supabase.from('bookings').insert({
         teacher_id: user?.id,
         room_id: roomId,

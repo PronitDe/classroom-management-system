@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Lock } from 'lucide-react';
+import { passwordChangeSchema } from '@/lib/validations';
 
 export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState('');
@@ -20,13 +21,16 @@ export default function ChangePassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (newPassword !== confirmPassword) {
-      toast.error('New passwords do not match');
-      return;
-    }
+    // Validate input
+    const validation = passwordChangeSchema.safeParse({
+      oldPassword,
+      newPassword,
+      confirmPassword,
+    });
 
-    if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters');
+    if (!validation.success) {
+      const errors = validation.error.errors.map(e => e.message).join(', ');
+      toast.error(errors);
       return;
     }
 
