@@ -12,6 +12,7 @@ import { MessageSquare, Send } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { format } from 'date-fns';
+import { feedbackSchema } from '@/lib/validations';
 
 export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
@@ -51,11 +52,18 @@ export default function Feedback() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!category || !message.trim()) {
+
+    // Validate input
+    const validation = feedbackSchema.safeParse({
+      category,
+      message,
+    });
+
+    if (!validation.success) {
+      const errors = validation.error.errors.map(e => e.message).join(', ');
       toast({
-        title: "Missing fields",
-        description: "Please select a category and enter your message",
+        title: "Validation Error",
+        description: errors,
         variant: "destructive",
       });
       return;

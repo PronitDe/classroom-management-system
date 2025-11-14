@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { SearchFilter } from '@/components/SearchFilter';
 import { format } from 'date-fns';
+import { noticeSchema } from '@/lib/validations';
 
 export default function ManageNotices() {
   const [notices, setNotices] = useState<any[]>([]);
@@ -49,11 +50,19 @@ export default function ManageNotices() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!title.trim() || !description.trim()) {
+
+    // Validate input
+    const validation = noticeSchema.safeParse({
+      title,
+      description,
+      attachmentUrl,
+    });
+
+    if (!validation.success) {
+      const errors = validation.error.errors.map(e => e.message).join(', ');
       toast({
-        title: "Missing fields",
-        description: "Title and description are required",
+        title: "Validation Error",
+        description: errors,
         variant: "destructive",
       });
       return;

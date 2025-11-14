@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { issueSchema } from '@/lib/validations';
 
 export default function Issues() {
   const { user } = useAuth();
@@ -46,6 +47,19 @@ export default function Issues() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate input
+    const validation = issueSchema.safeParse({
+      roomId,
+      message,
+    });
+
+    if (!validation.success) {
+      const errors = validation.error.errors.map(e => e.message).join(', ');
+      toast.error(errors);
+      return;
+    }
+
     setLoading(true);
 
     try {
