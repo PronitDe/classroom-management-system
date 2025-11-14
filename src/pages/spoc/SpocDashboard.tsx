@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
+import { Building2, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function SpocDashboard() {
