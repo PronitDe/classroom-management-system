@@ -1,6 +1,6 @@
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Calendar, ClipboardList, Home, FileText, AlertCircle, LogOut, Lock } from 'lucide-react';
+import { Building2, Calendar, ClipboardList, Home, FileText, AlertCircle, LogOut, Lock, Bell, MessageSquare, BookOpen, PartyPopper } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -37,10 +37,18 @@ export function AppSidebar() {
 
   const adminItems = [
     { title: 'Dashboard', url: '/admin/dashboard', icon: Home },
+    { title: 'Manage Notices', url: '/admin/notices', icon: Bell },
+    { title: 'Student Feedback', url: '/admin/feedback', icon: MessageSquare },
   ];
 
   const studentItems = [
     { title: 'Dashboard', url: '/student/dashboard', icon: Home },
+    { title: 'Submit Feedback', url: '/student/feedback', icon: MessageSquare },
+  ];
+
+  const studentExternalLinks = [
+    { title: 'Library Portal', url: 'https://library.example.com', icon: BookOpen },
+    { title: 'Events & Activities', url: 'https://events.example.com', icon: PartyPopper },
   ];
 
   const getMenuItems = () => {
@@ -105,6 +113,32 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Student External Links */}
+        {profile?.role === 'STUDENT' && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sidebar-foreground/70">External Links</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {studentExternalLinks.map((link) => (
+                  <SidebarMenuItem key={link.title}>
+                    <SidebarMenuButton asChild>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 text-sidebar-foreground hover:bg-sidebar-accent transition-colors rounded-lg"
+                      >
+                        <link.icon className="h-4 w-4" />
+                        <span>{link.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70">Account</SidebarGroupLabel>

@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { SeatGrid } from '@/components/SeatGrid';
+import { DemoStudentGrid } from '@/components/DemoStudentGrid';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Attendance() {
   const { user } = useAuth();
@@ -136,73 +138,117 @@ export default function Attendance() {
                 <p className="text-sm text-muted-foreground py-4">Select a class from the list</p>
               ) : (
                 <div>
-                  <form onSubmit={handleMarkAttendance} className="space-y-4">
-                  <div className="p-3 rounded-lg bg-muted/30 border">
-                    <div className="text-sm font-medium">{selectedBooking.rooms.building} {selectedBooking.rooms.room_no}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {new Date(selectedBooking.date).toLocaleDateString()} • {selectedBooking.slot}
-                    </div>
-                  </div>
+                  <Tabs defaultValue="manual" className="space-y-4">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+                      <TabsTrigger value="demo">Demo Grid View</TabsTrigger>
+                    </TabsList>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="total">Total Students</Label>
-                      <Input
-                        id="total"
-                        type="number"
-                        min="1"
-                        placeholder="e.g. 45"
-                        value={total}
-                        onChange={(e) => setTotal(e.target.value)}
-                        required
-                        className="transition-all"
+                    <TabsContent value="manual" className="space-y-4">
+                      <form onSubmit={handleMarkAttendance} className="space-y-4">
+                        <div className="p-3 rounded-lg bg-muted/30 border">
+                          <div className="text-sm font-medium">{selectedBooking.rooms.building} {selectedBooking.rooms.room_no}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {new Date(selectedBooking.date).toLocaleDateString()} • {selectedBooking.slot}
+                          </div>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="total">Total Students</Label>
+                            <Input
+                              id="total"
+                              type="number"
+                              min="1"
+                              placeholder="e.g. 45"
+                              value={total}
+                              onChange={(e) => setTotal(e.target.value)}
+                              required
+                              className="transition-all"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="present">Students Present</Label>
+                            <Input
+                              id="present"
+                              type="number"
+                              min="0"
+                              placeholder="e.g. 42"
+                              value={present}
+                              onChange={(e) => setPresent(e.target.value)}
+                              required
+                              className="transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="remarks">Remarks (Optional)</Label>
+                          <Textarea
+                            id="remarks"
+                            placeholder="Any notes about the class..."
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
+                            rows={3}
+                            className="transition-all resize-none"
+                          />
+                        </div>
+
+                        <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
+                          {loading ? 'Saving...' : 'Mark Attendance'}
+                        </Button>
+                      </form>
+
+                      {total && present && (
+                        <div className="mt-6 pt-6 border-t">
+                          <h3 className="text-sm font-medium mb-4">Seat Map Visualization</h3>
+                          <SeatGrid
+                            capacity={selectedBooking.rooms.capacity}
+                            totalStudents={parseInt(total)}
+                            presentStudents={parseInt(present)}
+                          />
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="demo" className="space-y-4">
+                      <div className="p-3 rounded-lg bg-muted/30 border">
+                        <div className="text-sm font-medium">{selectedBooking.rooms.building} {selectedBooking.rooms.room_no}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {new Date(selectedBooking.date).toLocaleDateString()} • {selectedBooking.slot}
+                        </div>
+                      </div>
+
+                      <DemoStudentGrid
+                        onAttendanceChange={(totalStudents, presentStudents) => {
+                          setTotal(totalStudents.toString());
+                          setPresent(presentStudents.toString());
+                        }}
                       />
-                    </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="remarks-demo">Remarks (Optional)</Label>
+                        <Textarea
+                          id="remarks-demo"
+                          placeholder="Any notes about the class..."
+                          value={remarks}
+                          onChange={(e) => setRemarks(e.target.value)}
+                          rows={3}
+                          className="transition-all resize-none"
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="present">Students Present</Label>
-                      <Input
-                        id="present"
-                        type="number"
-                        min="0"
-                        placeholder="e.g. 42"
-                        value={present}
-                        onChange={(e) => setPresent(e.target.value)}
-                        required
-                        className="transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="remarks">Remarks (Optional)</Label>
-                    <Textarea
-                      id="remarks"
-                      placeholder="Any notes about the class..."
-                      value={remarks}
-                      onChange={(e) => setRemarks(e.target.value)}
-                      rows={3}
-                      className="transition-all resize-none"
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
-                    {loading ? 'Saving...' : 'Mark Attendance'}
-                  </Button>
-                </form>
-
-                {/* Seat Map Visualization */}
-                {selectedBooking && total && present && (
-                  <div className="mt-6 pt-6 border-t">
-                    <h3 className="text-sm font-medium mb-4">Seat Map Visualization</h3>
-                    <SeatGrid
-                      capacity={selectedBooking.rooms.capacity}
-                      totalStudents={parseInt(total)}
-                      presentStudents={parseInt(present)}
-                    />
-                  </div>
-                )}
-              </div>
+                      <Button 
+                        onClick={handleMarkAttendance} 
+                        className="w-full btn-hover-lift" 
+                        disabled={loading || !total || !present}
+                      >
+                        {loading ? 'Saving...' : 'Mark Attendance'}
+                      </Button>
+                    </TabsContent>
+                  </Tabs>
+                </div>
               )}
             </CardContent>
           </Card>
