@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, CheckCircle, Clock, AlertCircle, BookOpen, ClipboardList, FileText, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     pending: 0,
     approved: 0,
@@ -77,11 +80,39 @@ export default function TeacherDashboard() {
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>Common tasks you can perform</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-2 sm:grid-cols-2">
-            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />Book a classroom for your next session</p>
-            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />Mark attendance for ongoing classes</p>
-            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />View your booking history</p>
-            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />Report any classroom issues</p>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-3 btn-hover-lift"
+              onClick={() => navigate('/teacher/book')}
+            >
+              <BookOpen className="h-4 w-4 mr-2 text-primary" />
+              <span className="text-left">Book a classroom for your next session</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-3 btn-hover-lift"
+              onClick={() => navigate('/teacher/attendance')}
+            >
+              <ClipboardList className="h-4 w-4 mr-2 text-success" />
+              <span className="text-left">Mark attendance for ongoing classes</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-3 btn-hover-lift"
+              onClick={() => navigate('/teacher/history')}
+            >
+              <FileText className="h-4 w-4 mr-2 text-accent" />
+              <span className="text-left">View your booking history</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto py-3 btn-hover-lift"
+              onClick={() => navigate('/teacher/issues')}
+            >
+              <AlertTriangle className="h-4 w-4 mr-2 text-destructive" />
+              <span className="text-left">Report any classroom issues</span>
+            </Button>
           </CardContent>
         </Card>
       </div>
