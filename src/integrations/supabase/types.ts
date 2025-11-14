@@ -174,6 +174,30 @@ export type Database = {
           },
         ]
       }
+      notices: {
+        Row: {
+          attachment_url: string | null
+          created_at: string
+          description: string
+          id: string
+          title: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          title: string
+        }
+        Update: {
+          attachment_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -230,6 +254,42 @@ export type Database = {
           remarks?: string | null
           room_no?: string
           type?: Database["public"]["Enums"]["room_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_feedback: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          message: string
+          responded_by: string | null
+          response_message: string | null
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          message: string
+          responded_by?: string | null
+          response_message?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          responded_by?: string | null
+          response_message?: string | null
+          status?: string
+          student_id?: string
           updated_at?: string
         }
         Relationships: []

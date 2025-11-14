@@ -19,7 +19,10 @@ import ManageRooms from "./pages/spoc/ManageRooms";
 import ManageBookings from "./pages/spoc/ManageBookings";
 import ManageIssues from "./pages/spoc/ManageIssues";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageNotices from "./pages/admin/ManageNotices";
+import ManageFeedback from "./pages/admin/ManageFeedback";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentFeedback from "./pages/student/Feedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -131,6 +134,22 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/notices"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN']}>
+                  <ManageNotices />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/feedback"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'SPOC']}>
+                  <ManageFeedback />
+                </ProtectedRoute>
+              }
+            />
             
             {/* Student Routes */}
             <Route
@@ -138,6 +157,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['STUDENT']}>
                   <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/feedback"
+              element={
+                <ProtectedRoute allowedRoles={['STUDENT']}>
+                  <StudentFeedback />
                 </ProtectedRoute>
               }
             />

@@ -8,52 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark theme with professional 2D hand-drawn feel */
-    --background: 222 47% 4%;
-    --foreground: 210 40% 98%;
+    /* Dark violet + black theme for SOET */
+    --background: 270 90% 2%;
+    --foreground: 270 20% 93%;
 
-    --card: 222 47% 7%;
-    --card-foreground: 210 40% 98%;
+    --card: 268 85% 4%;
+    --card-foreground: 270 20% 93%;
 
-    --popover: 222 47% 7%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 268 85% 4%;
+    --popover-foreground: 270 20% 93%;
 
-    --primary: 174 72% 56%;
-    --primary-foreground: 222 47% 4%;
+    --primary: 262 83% 50%;
+    --primary-foreground: 270 20% 95%;
 
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 263 70% 58%;
+    --secondary-foreground: 270 20% 95%;
 
-    --muted: 222 30% 12%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 268 50% 12%;
+    --muted-foreground: 270 15% 65%;
 
-    --accent: 142 71% 45%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 263 70% 58%;
+    --accent-foreground: 270 20% 95%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 270 20% 95%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 4%;
+    --warning-foreground: 270 90% 2%;
 
     --success: 142 71% 45%;
-    --success-foreground: 222 47% 4%;
+    --success-foreground: 270 90% 2%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
-    --ring: 174 72% 56%;
+    --border: 268 50% 15%;
+    --input: 268 50% 15%;
+    --ring: 262 83% 50%;
 
     --radius: 0.75rem;
 
     /* Sidebar theme */
-    --sidebar-background: 222 47% 5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 174 72% 56%;
-    --sidebar-primary-foreground: 222 47% 4%;
-    --sidebar-accent: 222 30% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 30% 18%;
-    --sidebar-ring: 174 72% 56%;
+    --sidebar-background: 268 85% 4%;
+    --sidebar-foreground: 270 20% 93%;
+    --sidebar-primary: 262 83% 50%;
+    --sidebar-primary-foreground: 270 20% 95%;
+    --sidebar-accent: 268 50% 12%;
+    --sidebar-accent-foreground: 270 20% 93%;
+    --sidebar-border: 268 50% 15%;
+    --sidebar-ring: 262 83% 50%;
 
     /* Custom shadows for hand-drawn feel */
     --shadow-soft: 0 2px 8px -2px hsl(222 47% 4% / 0.5);
@@ -66,49 +66,49 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark mode matches root for consistency */
-    --background: 222 47% 4%;
-    --foreground: 210 40% 98%;
+    /* Dark violet + black theme (matching root) */
+    --background: 270 90% 2%;
+    --foreground: 270 20% 93%;
 
-    --card: 222 47% 7%;
-    --card-foreground: 210 40% 98%;
+    --card: 268 85% 4%;
+    --card-foreground: 270 20% 93%;
 
-    --popover: 222 47% 7%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 268 85% 4%;
+    --popover-foreground: 270 20% 93%;
 
-    --primary: 174 72% 56%;
-    --primary-foreground: 222 47% 4%;
+    --primary: 262 83% 50%;
+    --primary-foreground: 270 20% 95%;
 
-    --secondary: 217 91% 60%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 263 70% 58%;
+    --secondary-foreground: 270 20% 95%;
 
-    --muted: 222 30% 12%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 268 50% 12%;
+    --muted-foreground: 270 15% 65%;
 
-    --accent: 142 71% 45%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 263 70% 58%;
+    --accent-foreground: 270 20% 95%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 270 20% 95%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 4%;
+    --warning-foreground: 270 90% 2%;
 
     --success: 142 71% 45%;
-    --success-foreground: 222 47% 4%;
+    --success-foreground: 270 90% 2%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
-    --ring: 174 72% 56%;
+    --border: 268 50% 15%;
+    --input: 268 50% 15%;
+    --ring: 262 83% 50%;
 
-    --sidebar-background: 222 47% 5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 174 72% 56%;
-    --sidebar-primary-foreground: 222 47% 4%;
-    --sidebar-accent: 222 30% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 30% 18%;
-    --sidebar-ring: 174 72% 56%;
+    --sidebar-background: 268 85% 4%;
+    --sidebar-foreground: 270 20% 93%;
+    --sidebar-primary: 262 83% 50%;
+    --sidebar-primary-foreground: 270 20% 95%;
+    --sidebar-accent: 268 50% 12%;
+    --sidebar-accent-foreground: 270 20% 93%;
+    --sidebar-border: 268 50% 15%;
+    --sidebar-ring: 262 83% 50%;
   }
 }
 
