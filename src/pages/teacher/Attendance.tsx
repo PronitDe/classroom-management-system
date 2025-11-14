@@ -6,12 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { SeatGrid } from '@/components/SeatGrid';
 import { DemoStudentGrid } from '@/components/DemoStudentGrid';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Attendance() {
   const { user } = useAuth();
@@ -42,7 +42,6 @@ export default function Attendance() {
       return;
     }
 
-    // Filter out bookings that already have attendance
     const bookingsWithoutAttendance = [];
     for (const booking of data || []) {
       const { data: attendance } = await supabase
@@ -59,8 +58,8 @@ export default function Attendance() {
     setApprovedBookings(bookingsWithoutAttendance);
   };
 
-  const handleMarkAttendance = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleMarkAttendance = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!selectedBooking) return;
 
     setLoading(true);
@@ -113,15 +112,20 @@ export default function Attendance() {
                   <Button
                     key={booking.id}
                     variant={selectedBooking?.id === booking.id ? 'default' : 'outline'}
-                    className="w-full justify-start text-left h-auto py-3 btn-hover-lift"
+                    className="w-full justify-between h-auto py-3 px-4"
                     onClick={() => setSelectedBooking(booking)}
                   >
-                    <div className="flex flex-col gap-1 w-full">
-                      <div className="font-medium">{booking.rooms.building} {booking.rooms.room_no}</div>
-                      <div className="text-xs opacity-80">
+                    <div className="text-left">
+                      <div className="font-medium">
+                        {booking.rooms.building} {booking.rooms.room_no}
+                      </div>
+                      <div className="text-xs opacity-80 mt-1">
                         {new Date(booking.date).toLocaleDateString()} • {booking.slot}
                       </div>
                     </div>
+                    <Badge variant="secondary" className="ml-2">
+                      {booking.rooms.capacity} seats
+                    </Badge>
                   </Button>
                 ))
               )}
@@ -164,7 +168,6 @@ export default function Attendance() {
                               value={total}
                               onChange={(e) => setTotal(e.target.value)}
                               required
-                              className="transition-all"
                             />
                           </div>
 
@@ -178,7 +181,6 @@ export default function Attendance() {
                               value={present}
                               onChange={(e) => setPresent(e.target.value)}
                               required
-                              className="transition-all"
                             />
                           </div>
                         </div>
@@ -191,11 +193,10 @@ export default function Attendance() {
                             value={remarks}
                             onChange={(e) => setRemarks(e.target.value)}
                             rows={3}
-                            className="transition-all resize-none"
                           />
                         </div>
 
-                        <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
+                        <Button type="submit" className="w-full" disabled={loading}>
                           {loading ? 'Saving...' : 'Mark Attendance'}
                         </Button>
                       </form>
@@ -235,13 +236,12 @@ export default function Attendance() {
                           value={remarks}
                           onChange={(e) => setRemarks(e.target.value)}
                           rows={3}
-                          className="transition-all resize-none"
                         />
                       </div>
 
                       <Button 
-                        onClick={handleMarkAttendance} 
-                        className="w-full btn-hover-lift" 
+                        onClick={() => handleMarkAttendance()} 
+                        className="w-full" 
                         disabled={loading || !total || !present}
                       >
                         {loading ? 'Saving...' : 'Mark Attendance'}
