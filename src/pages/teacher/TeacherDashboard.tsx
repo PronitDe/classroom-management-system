@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
@@ -13,6 +14,7 @@ export default function TeacherDashboard() {
     completed: 0,
     issues: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -21,6 +23,7 @@ export default function TeacherDashboard() {
   }, [user]);
 
   const fetchStats = async () => {
+    setLoading(true);
     const [bookings, attendance, issues] = await Promise.all([
       supabase.from('bookings').select('*', { count: 'exact' }).eq('teacher_id', user?.id),
       supabase.from('attendance').select('*', { count: 'exact' }).eq('teacher_id', user?.id),
@@ -36,72 +39,49 @@ export default function TeacherDashboard() {
       completed: attendance.count || 0,
       issues: issues.count || 0,
     });
+    setLoading(false);
   };
 
   const statCards = [
-    {
-      title: 'Pending Bookings',
-      value: stats.pending,
-      description: 'Awaiting approval',
-      icon: Clock,
-      color: 'text-warning',
-    },
-    {
-      title: 'Approved Bookings',
-      value: stats.approved,
-      description: 'Ready for class',
-      icon: CheckCircle,
-      color: 'text-success',
-    },
-    {
-      title: 'Classes Completed',
-      value: stats.completed,
-      description: 'Attendance marked',
-      icon: Calendar,
-      color: 'text-primary',
-    },
-    {
-      title: 'Issues Reported',
-      value: stats.issues,
-      description: 'Total issues filed',
-      icon: AlertCircle,
-      color: 'text-destructive',
-    },
+    { title: 'Pending Bookings', value: stats.pending, description: 'Awaiting approval', icon: Clock, color: 'text-warning' },
+    { title: 'Approved Bookings', value: stats.approved, description: 'Ready for class', icon: CheckCircle, color: 'text-success' },
+    { title: 'Classes Completed', value: stats.completed, description: 'Attendance marked', icon: Calendar, color: 'text-primary' },
+    { title: 'Issues Reported', value: stats.issues, description: 'Total issues filed', icon: AlertCircle, color: 'text-destructive' },
   ];
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">Teacher Dashboard</h2>
-          <p className="text-muted-foreground">Welcome back! Here's your overview.</p>
+          <p className="text-muted-foreground mt-1">Welcome back! Here's your overview.</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((stat) => (
-            <Card key={stat.title}>
+            <Card key={stat.title} className="card-sketch btn-hover-lift">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">{stat.description}</p>
+                {loading ? <Skeleton className="h-8 w-16" /> : <div className="text-3xl font-bold">{stat.value}</div>}
+                <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <Card>
+        <Card className="card-sketch">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>Common tasks you can perform</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm text-muted-foreground">• Book a classroom for your next session</p>
-            <p className="text-sm text-muted-foreground">• Mark attendance for ongoing classes</p>
-            <p className="text-sm text-muted-foreground">• View your booking history</p>
-            <p className="text-sm text-muted-foreground">• Report any classroom issues</p>
+          <CardContent className="grid gap-2 sm:grid-cols-2">
+            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />Book a classroom for your next session</p>
+            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />Mark attendance for ongoing classes</p>
+            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />View your booking history</p>
+            <p className="text-sm text-muted-foreground flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />Report any classroom issues</p>
           </CardContent>
         </Card>
       </div>

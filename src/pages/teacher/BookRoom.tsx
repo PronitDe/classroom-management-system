@@ -77,13 +77,13 @@ export default function BookRoom() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">Book a Room</h2>
           <p className="text-muted-foreground">Request a classroom for your session</p>
         </div>
 
-        <Card className="max-w-2xl">
+        <Card className="max-w-2xl card-sketch">
           <CardHeader>
             <CardTitle>Booking Details</CardTitle>
             <CardDescription>Fill in the details for your classroom booking</CardDescription>
@@ -93,45 +93,46 @@ export default function BookRoom() {
               <div className="space-y-2">
                 <Label htmlFor="room">Select Room</Label>
                 <Select value={roomId} onValueChange={setRoomId} required>
-                  <SelectTrigger>
+                  <SelectTrigger className="transition-all">
                     <SelectValue placeholder="Choose a room" />
                   </SelectTrigger>
                   <SelectContent>
                     {rooms.map((room) => (
                       <SelectItem key={room.id} value={room.id}>
-                        {room.building} {room.room_no} - {room.type.replace('_', ' ')} (Capacity: {room.capacity})
+                        {room.building} {room.room_no} - {room.type.replace('_', ' ')} (Cap: {room.capacity})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  required
-                />
-              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                    className="transition-all"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="slot">Time Slot</Label>
-                <Select value={slot} onValueChange={setSlot} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select time slot" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIME_SLOTS.map((timeSlot) => (
-                      <SelectItem key={timeSlot} value={timeSlot}>
-                        {timeSlot}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label htmlFor="slot">Time Slot</Label>
+                  <Select value={slot} onValueChange={setSlot} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose time slot" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIME_SLOTS.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -142,10 +143,11 @@ export default function BookRoom() {
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   rows={3}
+                  className="transition-all resize-none"
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
                 {loading ? 'Submitting...' : 'Submit Booking Request'}
               </Button>
             </form>

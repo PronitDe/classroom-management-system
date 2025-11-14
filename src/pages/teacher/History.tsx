@@ -58,49 +58,47 @@ export default function History() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">History</h2>
           <p className="text-muted-foreground">View your booking and attendance history</p>
         </div>
 
-        <Card>
+        <Card className="card-sketch">
           <CardHeader>
             <CardTitle>Booking History</CardTitle>
             <CardDescription>All your classroom booking requests</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
+          <CardContent className="overflow-x-auto">
+            <Table className="responsive-table">
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Room</TableHead>
-                  <TableHead>Time Slot</TableHead>
+                  <TableHead className="hidden sm:table-cell">Time Slot</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Remarks</TableHead>
+                  <TableHead className="hidden md:table-cell">Remarks</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {bookings.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       No booking history
                     </TableCell>
                   </TableRow>
                 ) : (
                   bookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        {booking.rooms.building} {booking.rooms.room_no}
-                      </TableCell>
-                      <TableCell>{booking.slot}</TableCell>
+                    <TableRow key={booking.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="font-medium">{new Date(booking.date).toLocaleDateString()}</TableCell>
+                      <TableCell>{booking.rooms.building} {booking.rooms.room_no}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{booking.slot}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusColor(booking.status) as any}>
                           {booking.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{booking.remarks || '-'}</TableCell>
+                      <TableCell className="hidden md:table-cell">{booking.remarks || '-'}</TableCell>
                     </TableRow>
                   ))
                 )}
@@ -109,43 +107,43 @@ export default function History() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-sketch">
           <CardHeader>
             <CardTitle>Attendance Records</CardTitle>
-            <CardDescription>History of marked attendance</CardDescription>
+            <CardDescription>Your completed class sessions</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
+          <CardContent className="overflow-x-auto">
+            <Table className="responsive-table">
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Room</TableHead>
-                  <TableHead>Time Slot</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Present</TableHead>
-                  <TableHead>Percentage</TableHead>
+                  <TableHead className="hidden sm:table-cell">Time Slot</TableHead>
+                  <TableHead>Attendance</TableHead>
+                  <TableHead className="hidden md:table-cell">Remarks</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {attendanceRecords.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       No attendance records
                     </TableCell>
                   </TableRow>
                 ) : (
                   attendanceRecords.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+                    <TableRow key={record.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="font-medium">{new Date(record.date).toLocaleDateString()}</TableCell>
+                      <TableCell>{record.rooms.building} {record.rooms.room_no}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{record.slot}</TableCell>
                       <TableCell>
-                        {record.rooms.building} {record.rooms.room_no}
+                        <span className="text-success font-medium">{record.present}</span>
+                        <span className="text-muted-foreground">/{record.total}</span>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          ({Math.round((record.present / record.total) * 100)}%)
+                        </span>
                       </TableCell>
-                      <TableCell>{record.slot}</TableCell>
-                      <TableCell>{record.total}</TableCell>
-                      <TableCell>{record.present}</TableCell>
-                      <TableCell>
-                        {((record.present / record.total) * 100).toFixed(1)}%
-                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{record.remarks || '-'}</TableCell>
                     </TableRow>
                   ))
                 )}
