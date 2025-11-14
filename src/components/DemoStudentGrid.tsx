@@ -52,22 +52,22 @@ export function DemoStudentGrid({ onAttendanceChange }: DemoStudentGridProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3 p-4 bg-muted/10 rounded-lg border">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 p-6 bg-muted/10 rounded-lg border">
             {DEMO_STUDENTS.map((student) => (
               <button
                 key={student.id}
                 onClick={() => toggleAttendance(student.id)}
                 className={`
-                  relative aspect-square rounded-lg border-2 transition-all hover:scale-105
-                  flex flex-col items-center justify-center p-2
+                  relative rounded-lg border-2 transition-all hover:scale-105
+                  flex flex-col items-center justify-center p-4 min-h-[100px]
                   ${attendance[student.id] 
                     ? 'bg-primary/20 border-primary hover:bg-primary/30' 
                     : 'bg-destructive/20 border-destructive hover:bg-destructive/30'}
                 `}
                 title={`${student.name}\n${student.roll}\nClick to toggle`}
               >
-                <span className="text-xs font-bold">{student.initials}</span>
-                <span className="text-[10px] text-muted-foreground mt-1">{student.id}</span>
+                <span className="text-lg font-bold truncate w-full text-center">{student.initials}</span>
+                <span className="text-xs text-muted-foreground mt-2 truncate w-full text-center">{student.id}</span>
               </button>
             ))}
           </div>
