@@ -1,4 +1,6 @@
-import { Building2, Calendar, ClipboardList, Home, FileText, AlertCircle, Users, BarChart3, LogOut } from 'lucide-react';
+import { DashboardLayout } from '@/components/DashboardLayout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Building2, Calendar, ClipboardList, Home, FileText, AlertCircle, LogOut } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -13,6 +15,7 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export function AppSidebar() {
   const { profile, signOut } = useAuth();
@@ -34,8 +37,6 @@ export function AppSidebar() {
 
   const adminItems = [
     { title: 'Dashboard', url: '/admin/dashboard', icon: Home },
-    { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
-    { title: 'Users', url: '/admin/users', icon: Users },
   ];
 
   const studentItems = [
@@ -58,24 +59,33 @@ export function AppSidebar() {
   };
 
   const menuItems = getMenuItems();
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return 'bg-destructive/20 text-destructive';
+      case 'SPOC': return 'bg-primary/20 text-primary';
+      case 'TEACHER': return 'bg-accent/20 text-accent';
+      case 'STUDENT': return 'bg-secondary/20 text-secondary';
+      default: return 'bg-muted/20 text-muted-foreground';
+    }
+  };
 
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarContent>
-        <div className="p-4">
-          <h2 className="text-xl font-bold text-sidebar-foreground">
-            SOET CMS
-          </h2>
-          <p className="text-sm text-sidebar-foreground/70 mt-1">
-            {profile?.name}
-          </p>
-          <p className="text-xs text-sidebar-foreground/50">
-            {profile?.role}
-          </p>
+        <div className="p-4 border-b border-sidebar-border">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold">
+              {profile?.name?.charAt(0) || 'U'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base font-bold text-sidebar-foreground truncate">{profile?.name || 'User'}</h2>
+              <Badge className={`text-xs mt-1 ${getRoleBadgeColor(profile?.role || '')}`}>{profile?.role}</Badge>
+            </div>
+          </div>
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-sidebar-foreground/70">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -83,7 +93,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className="flex items-center gap-3 text-sidebar-foreground hover:bg-sidebar-accent"
+                      className="flex items-center gap-3 text-sidebar-foreground hover:bg-sidebar-accent transition-colors rounded-lg"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
                     >
                       <item.icon className="h-4 w-4" />
@@ -97,10 +107,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border">
         <Button
           variant="ghost"
-          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
+          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-primary transition-colors"
           onClick={() => signOut()}
         >
           <LogOut className="mr-2 h-4 w-4" />

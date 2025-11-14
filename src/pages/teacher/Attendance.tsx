@@ -90,34 +90,32 @@ export default function Attendance() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">Mark Attendance</h2>
           <p className="text-muted-foreground">Record attendance for your approved classes</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className="card-sketch">
             <CardHeader>
               <CardTitle>Approved Classes</CardTitle>
               <CardDescription>Select a class to mark attendance</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 max-h-[500px] overflow-y-auto">
               {approvedBookings.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No approved classes available</p>
+                <p className="text-sm text-muted-foreground py-4">No approved classes available</p>
               ) : (
                 approvedBookings.map((booking) => (
                   <Button
                     key={booking.id}
                     variant={selectedBooking?.id === booking.id ? 'default' : 'outline'}
-                    className="w-full justify-start"
+                    className="w-full justify-start text-left h-auto py-3 btn-hover-lift"
                     onClick={() => setSelectedBooking(booking)}
                   >
-                    <div className="flex flex-col items-start gap-1">
-                      <div className="font-semibold">
-                        {booking.rooms.building} {booking.rooms.room_no}
-                      </div>
-                      <div className="text-xs">
+                    <div className="flex flex-col gap-1 w-full">
+                      <div className="font-medium">{booking.rooms.building} {booking.rooms.room_no}</div>
+                      <div className="text-xs opacity-80">
                         {new Date(booking.date).toLocaleDateString()} • {booking.slot}
                       </div>
                     </div>
@@ -127,60 +125,72 @@ export default function Attendance() {
             </CardContent>
           </Card>
 
-          {selectedBooking && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Attendance Form</CardTitle>
-                <CardDescription>
-                  {selectedBooking.rooms.building} {selectedBooking.rooms.room_no}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+          <Card className="card-sketch">
+            <CardHeader>
+              <CardTitle>Attendance Form</CardTitle>
+              <CardDescription>Enter attendance details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!selectedBooking ? (
+                <p className="text-sm text-muted-foreground py-4">Select a class from the list</p>
+              ) : (
                 <form onSubmit={handleMarkAttendance} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="total">Total Students</Label>
-                    <Input
-                      id="total"
-                      type="number"
-                      min="1"
-                      max={selectedBooking.rooms.capacity}
-                      value={total}
-                      onChange={(e) => setTotal(e.target.value)}
-                      required
-                    />
+                  <div className="p-3 rounded-lg bg-muted/30 border">
+                    <div className="text-sm font-medium">{selectedBooking.rooms.building} {selectedBooking.rooms.room_no}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {new Date(selectedBooking.date).toLocaleDateString()} • {selectedBooking.slot}
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="present">Present</Label>
-                    <Input
-                      id="present"
-                      type="number"
-                      min="0"
-                      max={total || selectedBooking.rooms.capacity}
-                      value={present}
-                      onChange={(e) => setPresent(e.target.value)}
-                      required
-                    />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="total">Total Students</Label>
+                      <Input
+                        id="total"
+                        type="number"
+                        min="1"
+                        placeholder="e.g. 45"
+                        value={total}
+                        onChange={(e) => setTotal(e.target.value)}
+                        required
+                        className="transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="present">Students Present</Label>
+                      <Input
+                        id="present"
+                        type="number"
+                        min="0"
+                        placeholder="e.g. 42"
+                        value={present}
+                        onChange={(e) => setPresent(e.target.value)}
+                        required
+                        className="transition-all"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="remarks">Remarks (Optional)</Label>
                     <Textarea
                       id="remarks"
-                      placeholder="Any notes..."
+                      placeholder="Any notes about the class..."
                       value={remarks}
                       onChange={(e) => setRemarks(e.target.value)}
                       rows={3}
+                      className="transition-all resize-none"
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Submitting...' : 'Submit Attendance'}
+                  <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
+                    {loading ? 'Saving...' : 'Mark Attendance'}
                   </Button>
                 </form>
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>

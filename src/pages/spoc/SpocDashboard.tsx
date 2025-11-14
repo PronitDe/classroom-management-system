@@ -11,72 +11,52 @@ export default function SpocDashboard() {
     pendingBookings: 0,
     openIssues: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
-    const [rooms, bookings, issues] = await Promise.all([
-      supabase.from('rooms').select('*', { count: 'exact' }),
-      supabase.from('bookings').select('*', { count: 'exact' }).eq('status', 'PENDING'),
-      supabase.from('issue_reports').select('*', { count: 'exact' }).eq('status', 'OPEN'),
+    setLoading(true);
+    const [rooms, activeRooms, bookings, issues] = await Promise.all([
+      supabase.from('rooms').select('*', { count: 'exact', head: true }),
+      supabase.from('rooms').select('*', { count: 'exact', head: true }).eq('is_active', true),
+      supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
+      supabase.from('issue_reports').select('*', { count: 'exact', head: true }).in('status', ['OPEN', 'IN_PROGRESS']),
     ]);
-
-    const activeRooms = rooms.data?.filter((r) => r.is_active).length || 0;
-
     setStats({
       totalRooms: rooms.count || 0,
-      activeRooms,
+      activeRooms: activeRooms.count || 0,
       pendingBookings: bookings.count || 0,
       openIssues: issues.count || 0,
     });
+    setLoading(false);
   };
 
   const statCards = [
-    {
-      title: 'Total Rooms',
-      value: stats.totalRooms,
-      icon: Building2,
-      color: 'text-primary',
-    },
-    {
-      title: 'Active Rooms',
-      value: stats.activeRooms,
-      icon: CheckCircle,
-      color: 'text-success',
-    },
-    {
-      title: 'Pending Bookings',
-      value: stats.pendingBookings,
-      icon: Calendar,
-      color: 'text-warning',
-    },
-    {
-      title: 'Open Issues',
-      value: stats.openIssues,
-      icon: AlertCircle,
-      color: 'text-destructive',
-    },
+    { title: 'Total Rooms', value: stats.totalRooms, icon: Building2, color: 'text-primary' },
+    { title: 'Active Rooms', value: stats.activeRooms, icon: CheckCircle2, color: 'text-success' },
+    { title: 'Pending Bookings', value: stats.pendingBookings, icon: Clock, color: 'text-warning' },
+    { title: 'Open Issues', value: stats.openIssues, icon: AlertCircle, color: 'text-destructive' },
   ];
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">SPOC Dashboard</h2>
-          <p className="text-muted-foreground">Manage rooms, bookings, and issues</p>
+          <p className="text-muted-foreground mt-1">Room and booking management overview</p>
         </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((stat) => (
-            <Card key={stat.title}>
+            <Card key={stat.title} className="card-sketch btn-hover-lift">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                {loading ? <Skeleton className="h-8 w-16" /> : <div className="text-3xl font-bold">{stat.value}</div>}
               </CardContent>
             </Card>
           ))}

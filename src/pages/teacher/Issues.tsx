@@ -86,13 +86,13 @@ export default function Issues() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">Report Issues</h2>
           <p className="text-muted-foreground">Report classroom problems and track status</p>
         </div>
 
-        <Card className="max-w-2xl">
+        <Card className="max-w-2xl card-sketch">
           <CardHeader>
             <CardTitle>New Issue Report</CardTitle>
             <CardDescription>Describe the problem you encountered</CardDescription>
@@ -102,7 +102,7 @@ export default function Issues() {
               <div className="space-y-2">
                 <Label htmlFor="room">Room</Label>
                 <Select value={roomId} onValueChange={setRoomId} required>
-                  <SelectTrigger>
+                  <SelectTrigger className="transition-all">
                     <SelectValue placeholder="Select room" />
                   </SelectTrigger>
                   <SelectContent>
@@ -123,55 +123,57 @@ export default function Issues() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   required
-                  rows={5}
-                  minLength={10}
+                  rows={4}
+                  className="transition-all resize-none"
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
                 {loading ? 'Submitting...' : 'Submit Issue Report'}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-sketch">
           <CardHeader>
-            <CardTitle>Your Issue Reports</CardTitle>
-            <CardDescription>Track the status of your reported issues</CardDescription>
+            <CardTitle>Your Reported Issues</CardTitle>
+            <CardDescription>Track the status of your reports</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
+          <CardContent className="overflow-x-auto">
+            <Table className="responsive-table">
               <TableHeader>
                 <TableRow>
                   <TableHead>Room</TableHead>
-                  <TableHead>Issue</TableHead>
+                  <TableHead className="hidden sm:table-cell">Issue</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Response</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead className="hidden md:table-cell">Date</TableHead>
+                  <TableHead className="hidden lg:table-cell">Response</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {issues.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       No issues reported yet
                     </TableCell>
                   </TableRow>
                 ) : (
                   issues.map((issue) => (
-                    <TableRow key={issue.id}>
-                      <TableCell>
-                        {issue.rooms.building} {issue.rooms.room_no}
-                      </TableCell>
-                      <TableCell className="max-w-xs truncate">{issue.message}</TableCell>
+                    <TableRow key={issue.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell className="font-medium">{issue.rooms.building} {issue.rooms.room_no}</TableCell>
+                      <TableCell className="hidden sm:table-cell max-w-xs truncate">{issue.message}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusColor(issue.status) as any}>
                           {issue.status.replace('_', ' ')}
                         </Badge>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">{issue.response || '-'}</TableCell>
-                      <TableCell>{new Date(issue.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                        {new Date(issue.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell max-w-xs truncate text-sm text-muted-foreground">
+                        {issue.response || 'Pending'}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
