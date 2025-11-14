@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { ConflictWarning } from '@/components/ConflictWarning';
 
 const TIME_SLOTS = [
   '9:00-10:30',
@@ -26,6 +27,7 @@ export default function BookRoom() {
   const [roomId, setRoomId] = useState('');
   const [remarks, setRemarks] = useState('');
   const [loading, setLoading] = useState(false);
+  const [conflicts, setConflicts] = useState<any[]>([]);
 
   useEffect(() => {
     fetchRooms();
@@ -45,6 +47,34 @@ export default function BookRoom() {
     }
     setRooms(data || []);
   };
+
+  const checkConflicts = async () => {
+    if (!date || !slot || !roomId) {
+      setConflicts([]);
+      return;
+    }
+
+    const { data } = await supabase
+      .from('bookings')
+      .select('*, rooms(*), profiles!bookings_teacher_id_fkey(name)')
+      .eq('room_id', roomId)
+      .eq('date', date)
+      .eq('slot', slot);
+
+    const conflictList = (data || []).map(b => ({
+      room: `${b.rooms.building} ${b.rooms.room_no}`,
+      slot: b.slot,
+      teacher: b.profiles?.name || 'Unknown'
+    }));
+
+    setConflicts(conflictList);
+  };
+
+  useEffect(() => {
+    if (date && slot && roomId) {
+      checkConflicts();
+    }
+  }, [date, slot, roomId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +119,7 @@ export default function BookRoom() {
             <CardDescription>Fill in the details for your classroom booking</CardDescription>
           </CardHeader>
           <CardContent>
+            <ConflictWarning conflicts={conflicts} />
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="room">Select Room</Label>

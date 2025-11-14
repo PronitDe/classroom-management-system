@@ -8,52 +8,52 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark violet + black theme for SOET */
-    --background: 270 90% 2%;
-    --foreground: 270 20% 93%;
+    /* ChatGPT-style minimal dark theme */
+    --background: 0 0% 2%;
+    --foreground: 0 0% 100%;
 
-    --card: 268 85% 4%;
-    --card-foreground: 270 20% 93%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 268 85% 4%;
-    --popover-foreground: 270 20% 93%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 262 83% 50%;
-    --primary-foreground: 270 20% 95%;
+    --primary: 166 76% 35%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 263 70% 58%;
-    --secondary-foreground: 270 20% 95%;
+    --secondary: 0 0% 25%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 268 50% 12%;
-    --muted-foreground: 270 15% 65%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 82%;
 
-    --accent: 263 70% 58%;
-    --accent-foreground: 270 20% 95%;
+    --accent: 166 76% 35%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 270 20% 95%;
+    --destructive-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 270 90% 2%;
+    --warning-foreground: 0 0% 2%;
 
-    --success: 142 71% 45%;
-    --success-foreground: 270 90% 2%;
+    --success: 166 76% 35%;
+    --success-foreground: 0 0% 100%;
 
-    --border: 268 50% 15%;
-    --input: 268 50% 15%;
-    --ring: 262 83% 50%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 166 76% 35%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Sidebar theme */
-    --sidebar-background: 268 85% 4%;
-    --sidebar-foreground: 270 20% 93%;
-    --sidebar-primary: 262 83% 50%;
-    --sidebar-primary-foreground: 270 20% 95%;
-    --sidebar-accent: 268 50% 12%;
-    --sidebar-accent-foreground: 270 20% 93%;
-    --sidebar-border: 268 50% 15%;
-    --sidebar-ring: 262 83% 50%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 166 76% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 13%;
+    --sidebar-ring: 166 76% 35%;
 
     /* Custom shadows for hand-drawn feel */
     --shadow-soft: 0 2px 8px -2px hsl(222 47% 4% / 0.5);
@@ -66,49 +66,49 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark violet + black theme (matching root) */
-    --background: 270 90% 2%;
-    --foreground: 270 20% 93%;
+    /* ChatGPT-style minimal dark theme (matching root) */
+    --background: 0 0% 2%;
+    --foreground: 0 0% 100%;
 
-    --card: 268 85% 4%;
-    --card-foreground: 270 20% 93%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 268 85% 4%;
-    --popover-foreground: 270 20% 93%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 262 83% 50%;
-    --primary-foreground: 270 20% 95%;
+    --primary: 166 76% 35%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 263 70% 58%;
-    --secondary-foreground: 270 20% 95%;
+    --secondary: 0 0% 25%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 268 50% 12%;
-    --muted-foreground: 270 15% 65%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 82%;
 
-    --accent: 263 70% 58%;
-    --accent-foreground: 270 20% 95%;
+    --accent: 166 76% 35%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 270 20% 95%;
+    --destructive-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 270 90% 2%;
+    --warning-foreground: 0 0% 2%;
 
-    --success: 142 71% 45%;
-    --success-foreground: 270 90% 2%;
+    --success: 166 76% 35%;
+    --success-foreground: 0 0% 100%;
 
-    --border: 268 50% 15%;
-    --input: 268 50% 15%;
-    --ring: 262 83% 50%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 166 76% 35%;
 
-    --sidebar-background: 268 85% 4%;
-    --sidebar-foreground: 270 20% 93%;
-    --sidebar-primary: 262 83% 50%;
-    --sidebar-primary-foreground: 270 20% 95%;
-    --sidebar-accent: 268 50% 12%;
-    --sidebar-accent-foreground: 270 20% 93%;
-    --sidebar-border: 268 50% 15%;
-    --sidebar-ring: 262 83% 50%;
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 166 76% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 13%;
+    --sidebar-ring: 166 76% 35%;
   }
 }
 
@@ -121,13 +121,13 @@ All colors MUST be HSL.
     @apply bg-background text-foreground font-sans antialiased;
   }
 
-  /* Hand-drawn inspired elements */
+  /* Minimal flat elements */
   .card-sketch {
-    @apply rounded-xl border-2 shadow-lg hover:shadow-xl transition-all duration-300;
+    @apply rounded-lg border shadow-sm hover:shadow-md transition-all duration-200;
   }
 
   .btn-hover-lift {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-lg;
+    @apply transition-all duration-200 hover:scale-[1.01] hover:brightness-110;
   }
 
   /* Smooth animations */
