@@ -140,7 +140,7 @@ export default function ManageIssues() {
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select value={status} onValueChange={setStatus}>
+                <Select value={status} onValueChange={(v) => setStatus(v as 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED')}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
