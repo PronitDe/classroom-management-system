@@ -239,7 +239,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      user_has_role: {
+        Args: {
+          check_role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Returns: boolean
+      }
+      user_is_privileged: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       booking_status:
