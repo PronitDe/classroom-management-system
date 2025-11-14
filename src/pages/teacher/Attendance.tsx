@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { SeatGrid } from '@/components/SeatGrid';
 
 export default function Attendance() {
   const { user } = useAuth();
@@ -188,7 +189,19 @@ export default function Attendance() {
                     {loading ? 'Saving...' : 'Mark Attendance'}
                   </Button>
                 </form>
-              )}
+
+                {/* Seat Map Visualization */}
+                {selectedBooking && total && present && (
+                  <div className="mt-6 pt-6 border-t">
+                    <h3 className="text-sm font-medium mb-4">Seat Map Visualization</h3>
+                    <SeatGrid
+                      capacity={selectedBooking.rooms.capacity}
+                      totalStudents={parseInt(total)}
+                      presentStudents={parseInt(present)}
+                    />
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

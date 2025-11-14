@@ -10,23 +10,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { AlertCircle } from 'lucide-react';
 
 export default function ManageIssues() {
   const [issues, setIssues] = useState<any[]>([]);
   const [selectedIssue, setSelectedIssue] = useState<any>(null);
   const [status, setStatus] = useState<'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'>('OPEN');
   const [response, setResponse] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchIssues();
   }, []);
 
   const fetchIssues = async () => {
+    setLoading(true);
     const { data } = await supabase
       .from('issue_reports')
       .select('*, rooms(*), profiles!issue_reports_teacher_id_fkey(*)')
       .order('created_at', { ascending: false });
     setIssues(data || []);
+    setLoading(false);
   };
 
   const handleUpdateIssue = async () => {
@@ -64,18 +68,25 @@ export default function ManageIssues() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">Manage Issues</h2>
           <p className="text-muted-foreground">Track and resolve classroom issues</p>
         </div>
 
-        <Card>
+        <Card className="card-sketch">
           <CardHeader>
-            <CardTitle>All Issue Reports</CardTitle>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              <CardTitle>All Issue Reports</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
-            <Table>
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading issues...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Reported By</TableHead>
@@ -125,6 +136,8 @@ export default function ManageIssues() {
                 )}
               </TableBody>
             </Table>
+          </div>
+            )}
           </CardContent>
         </Card>
 
@@ -161,9 +174,9 @@ export default function ManageIssues() {
                   rows={4}
                 />
               </div>
-              <Button onClick={handleUpdateIssue} className="w-full">
-                Update Issue
-              </Button>
+            <Button onClick={handleUpdateIssue} className="w-full btn-hover-lift">
+              Update Issue
+            </Button>
             </div>
           </DialogContent>
         </Dialog>

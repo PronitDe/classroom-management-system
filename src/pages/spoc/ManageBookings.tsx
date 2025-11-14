@@ -6,20 +6,24 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Calendar, CheckCircle2, XCircle } from 'lucide-react';
 
 export default function ManageBookings() {
   const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchBookings();
   }, []);
 
   const fetchBookings = async () => {
+    setLoading(true);
     const { data } = await supabase
       .from('bookings')
       .select('*, rooms(*), profiles!bookings_teacher_id_fkey(*)')
       .order('date', { ascending: false });
     setBookings(data || []);
+    setLoading(false);
   };
 
   const updateBookingStatus = async (bookingId: string, status: 'APPROVED' | 'REJECTED') => {
@@ -54,18 +58,25 @@ export default function ManageBookings() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">Manage Bookings</h2>
           <p className="text-muted-foreground">Approve or reject room booking requests</p>
         </div>
 
-        <Card>
+        <Card className="card-sketch">
           <CardHeader>
-            <CardTitle>All Booking Requests</CardTitle>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              <CardTitle>All Booking Requests</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
-            <Table>
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading bookings...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Teacher</TableHead>
@@ -103,15 +114,19 @@ export default function ManageBookings() {
                             <Button
                               size="sm"
                               variant="default"
+                              className="btn-hover-lift"
                               onClick={() => updateBookingStatus(booking.id, 'APPROVED')}
                             >
+                              <CheckCircle2 className="h-4 w-4 mr-1" />
                               Approve
                             </Button>
                             <Button
                               size="sm"
                               variant="destructive"
+                              className="btn-hover-lift"
                               onClick={() => updateBookingStatus(booking.id, 'REJECTED')}
                             >
+                              <XCircle className="h-4 w-4 mr-1" />
                               Reject
                             </Button>
                           </div>
@@ -122,6 +137,8 @@ export default function ManageBookings() {
                 )}
               </TableBody>
             </Table>
+          </div>
+            )}
           </CardContent>
         </Card>
       </div>
