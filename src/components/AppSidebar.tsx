@@ -1,6 +1,6 @@
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, Calendar, ClipboardList, Home, FileText, AlertCircle, LogOut } from 'lucide-react';
+import { Building2, Calendar, ClipboardList, Home, FileText, AlertCircle, LogOut, Lock } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -117,7 +117,7 @@ export function AppSidebar() {
                     className="flex items-center gap-3 text-sidebar-foreground hover:bg-sidebar-accent transition-colors rounded-lg"
                     activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
                   >
-                    <AlertCircle className="h-4 w-4" />
+                    <Lock className="h-4 w-4" />
                     <span>Change Password</span>
                   </NavLink>
                 </SidebarMenuButton>
