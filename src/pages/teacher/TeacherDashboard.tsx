@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle, Clock, AlertCircle, BookOpen, ClipboardList, FileText, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, CheckCircle, Clock, AlertCircle, BookOpen, ClipboardList, FileText, AlertTriangle, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardChart } from '@/components/DashboardChart';
+import { format } from 'date-fns';
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
@@ -17,6 +20,8 @@ export default function TeacherDashboard() {
     completed: 0,
     issues: 0,
   });
+  const [recentBookings, setRecentBookings] = useState<any[]>([]);
+  const [recentAttendance, setRecentAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,6 +47,25 @@ export default function TeacherDashboard() {
       completed: attendance.count || 0,
       issues: issues.count || 0,
     });
+
+    // Fetch recent bookings
+    const { data: recentB } = await supabase
+      .from('bookings')
+      .select('*, rooms(*)')
+      .eq('teacher_id', user?.id)
+      .order('date', { ascending: false })
+      .limit(5);
+    setRecentBookings(recentB || []);
+
+    // Fetch recent attendance
+    const { data: recentA } = await supabase
+      .from('attendance')
+      .select('*, rooms(*)')
+      .eq('teacher_id', user?.id)
+      .order('date', { ascending: false })
+      .limit(5);
+    setRecentAttendance(recentA || []);
+
     setLoading(false);
   };
 
@@ -113,6 +137,73 @@ export default function TeacherDashboard() {
               <AlertTriangle className="h-4 w-4 mr-2 text-destructive" />
               <span className="text-left">Report any classroom issues</span>
             </Button>
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Recent Bookings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Recent Bookings</CardTitle>
+              <CardDescription>Your latest room reservations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {recentBookings.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No bookings yet</p>
+              ) : (
+                <div className="space-y-2">
+                  {recentBookings.map((booking) => (
+                    <div key={booking.id} className="flex items-center justify-between p-2 border rounded">
+                      <div className="text-sm">
+                        <div className="font-medium">{booking.rooms.building} {booking.rooms.room_no}</div>
+                        <div className="text-xs text-muted-foreground">{format(new Date(booking.date), 'MMM d')} • {booking.slot}</div>
+                      </div>
+                      <Badge variant={booking.status === 'APPROVED' ? 'default' : 'secondary'}>{booking.status}</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Attendance */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Recent Attendance</CardTitle>
+              <CardDescription>Classes you've completed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {recentAttendance.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No attendance records</p>
+              ) : (
+                <div className="space-y-2">
+                  {recentAttendance.map((att) => (
+                    <div key={att.id} className="flex items-center justify-between p-2 border rounded">
+                      <div className="text-sm">
+                        <div className="font-medium">{att.rooms.building} {att.rooms.room_no}</div>
+                        <div className="text-xs text-muted-foreground">{format(new Date(att.date), 'MMM d')} • {att.slot}</div>
+                      </div>
+                      <div className="text-sm font-medium text-primary">{att.present}/{att.total}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Tips */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Quick Tips</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>• Use the Demo Grid View for faster attendance marking</li>
+              <li>• Book rooms at least 24 hours in advance for better availability</li>
+              <li>• Report issues immediately to get them resolved quickly</li>
+              <li>• Check your approved bookings before class time</li>
+            </ul>
           </CardContent>
         </Card>
       </div>

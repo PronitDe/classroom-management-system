@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
-import { Building2, Calendar, AlertCircle, TrendingUp, Activity } from 'lucide-react';
+import { Building2, Calendar, AlertCircle, TrendingUp, Activity, Bell, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardChart } from '@/components/DashboardChart';
+import { format } from 'date-fns';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -20,6 +22,9 @@ export default function AdminDashboard() {
   });
   const [roomUtilization, setRoomUtilization] = useState<any[]>([]);
   const [openIssues, setOpenIssues] = useState<any[]>([]);
+  const [recentNotices, setRecentNotices] = useState<any[]>([]);
+  const [recentFeedback, setRecentFeedback] = useState<any[]>([]);
+  const [monthlyBookings, setMonthlyBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -97,6 +102,43 @@ export default function AdminDashboard() {
         .limit(5);
 
       setOpenIssues(latestIssues || []);
+
+      // Fetch recent notices
+      const { data: notices } = await supabase
+        .from('notices')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      setRecentNotices(notices || []);
+
+      // Fetch recent feedback
+      const { data: feedback } = await supabase
+        .from('student_feedback')
+        .select('*, profiles!student_feedback_student_id_fkey(name)')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      setRecentFeedback(feedback || []);
+
+      // Calculate monthly booking trends (last 6 months)
+      const monthlyData = [];
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+        const { count } = await supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .gte('date', format(startOfMonth, 'yyyy-MM-dd'))
+          .lte('date', format(endOfMonth, 'yyyy-MM-dd'));
+
+        monthlyData.push({
+          label: format(startOfMonth, 'MMM'),
+          value: count || 0
+        });
+      }
+      setMonthlyBookings(monthlyData);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -235,6 +277,70 @@ export default function AdminDashboard() {
                       <p className="text-xs text-muted-foreground">
                         {new Date(issue.created_at).toLocaleDateString()}
                       </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* Monthly Bookings Chart */}
+          <DashboardChart
+            title="Monthly Bookings"
+            description="Last 6 months"
+            data={monthlyBookings}
+            trend="up"
+            trendValue="+12%"
+          />
+
+          {/* Recent Notices */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">Recent Notices</CardTitle>
+                <CardDescription>Latest announcements</CardDescription>
+              </div>
+              <Bell className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {recentNotices.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No notices</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentNotices.map((notice) => (
+                    <div key={notice.id} className="text-sm space-y-1">
+                      <div className="font-medium line-clamp-1">{notice.title}</div>
+                      <p className="text-xs text-muted-foreground">{format(new Date(notice.created_at), 'MMM d')}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Feedback */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">Recent Feedback</CardTitle>
+                <CardDescription>Student submissions</CardDescription>
+              </div>
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {recentFeedback.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No feedback</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentFeedback.map((fb) => (
+                    <div key={fb.id} className="text-sm space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-xs">{fb.profiles?.name}</span>
+                        <Badge variant="secondary" className="text-xs">{fb.category}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{fb.message}</p>
                     </div>
                   ))}
                 </div>
