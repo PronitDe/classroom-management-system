@@ -135,7 +135,8 @@ export default function Attendance() {
               {!selectedBooking ? (
                 <p className="text-sm text-muted-foreground py-4">Select a class from the list</p>
               ) : (
-                <form onSubmit={handleMarkAttendance} className="space-y-4">
+                <div>
+                  <form onSubmit={handleMarkAttendance} className="space-y-4">
                   <div className="p-3 rounded-lg bg-muted/30 border">
                     <div className="text-sm font-medium">{selectedBooking.rooms.building} {selectedBooking.rooms.room_no}</div>
                     <div className="text-xs text-muted-foreground mt-1">
@@ -202,6 +203,7 @@ export default function Attendance() {
                   </div>
                 )}
               </div>
+              )}
             </CardContent>
           </Card>
         </div>
