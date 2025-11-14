@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ChangePassword from "./pages/ChangePassword";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import BookRoom from "./pages/teacher/BookRoom";
 import Attendance from "./pages/teacher/Attendance";
@@ -34,6 +35,16 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            
+            {/* Change Password Route (Protected for all authenticated users) */}
+            <Route
+              path="/change-password"
+              element={
+                <ProtectedRoute>
+                  <ChangePassword />
+                </ProtectedRoute>
+              }
+            />
             
             {/* Teacher Routes */}
             <Route

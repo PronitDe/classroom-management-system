@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,23 +10,27 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Building2, Users } from 'lucide-react';
 
 export default function ManageRooms() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [editingRoom, setEditingRoom] = useState<any>(null);
   const [remarks, setRemarks] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchRooms();
   }, []);
 
   const fetchRooms = async () => {
+    setLoading(true);
     const { data } = await supabase
       .from('rooms')
       .select('*')
       .order('building')
       .order('room_no');
     setRooms(data || []);
+    setLoading(false);
   };
 
   const toggleRoomStatus = async (roomId: string, currentStatus: boolean) => {
@@ -65,18 +68,25 @@ export default function ManageRooms() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
           <h2 className="text-3xl font-bold">Manage Rooms</h2>
           <p className="text-muted-foreground">Control room availability and maintenance</p>
         </div>
 
-        <Card>
+        <Card className="card-sketch">
           <CardHeader>
-            <CardTitle>All Classrooms</CardTitle>
+            <div className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              <CardTitle>All Classrooms</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
-            <Table>
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading rooms...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Building</TableHead>
@@ -91,10 +101,17 @@ export default function ManageRooms() {
               <TableBody>
                 {rooms.map((room) => (
                   <TableRow key={room.id}>
-                    <TableCell className="font-medium">{room.building}</TableCell>
-                    <TableCell>{room.room_no}</TableCell>
-                    <TableCell className="capitalize">{room.type.replace('_', ' ').toLowerCase()}</TableCell>
-                    <TableCell>{room.capacity}</TableCell>
+                      <TableCell className="font-medium">{room.building}</TableCell>
+                      <TableCell>{room.room_no}</TableCell>
+                      <TableCell className="capitalize">
+                        {room.type.replace('_', ' ').toLowerCase()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3 text-muted-foreground" />
+                          <span>{room.capacity}</span>
+                        </div>
+                      </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Switch
@@ -123,6 +140,8 @@ export default function ManageRooms() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+            )}
           </CardContent>
         </Card>
 
@@ -143,9 +162,9 @@ export default function ManageRooms() {
                   rows={4}
                 />
               </div>
-              <Button onClick={handleSaveRemarks} className="w-full">
-                Save Changes
-              </Button>
+            <Button onClick={handleSaveRemarks} className="w-full btn-hover-lift">
+              Save Changes
+            </Button>
             </div>
           </DialogContent>
         </Dialog>
