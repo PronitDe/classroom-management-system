@@ -1,73 +1,64 @@
-# Welcome to your Lovable project
+# SOET Smart Classroom Management System
 
-## Project info
+A comprehensive classroom management system for the School of Engineering & Technology (SOET), Adamas University.
 
-**URL**: https://lovable.dev/projects/8185f14a-64b2-4c4c-9c04-0718ca6d2425
+## Features
 
-## How can I edit this code?
+### Teacher Module
+- Book classrooms with specific time slots
+- Mark attendance for approved bookings
+- View booking and attendance history
+- Report classroom issues
 
-There are several ways of editing your application.
+### SPOC Module
+- Manage room availability and maintenance
+- Approve or reject booking requests
+- Track and resolve classroom issues
+- View system statistics
 
-**Use Lovable**
+### Admin Module (Mock UI)
+- View system analytics and statistics
+- Monitor room utilization
+- Track peak usage hours
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8185f14a-64b2-4c4c-9c04-0718ca6d2425) and start prompting.
+### Student Module (Mock UI)
+- View class schedule
+- Check attendance records
 
-Changes made via Lovable will be committed automatically to this repo.
+## Tech Stack
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
+- React + TypeScript
 - Vite
-- TypeScript
-- React
-- shadcn-ui
 - Tailwind CSS
+- Supabase (PostgreSQL, Auth, RLS)
+- shadcn/ui components
 
-## How can I deploy this project?
+## Database Schema
 
-Simply open [Lovable](https://lovable.dev/projects/8185f14a-64b2-4c4c-9c04-0718ca6d2425) and click on Share -> Publish.
+- **Profiles**: User information with roles (TEACHER, SPOC, ADMIN, STUDENT)
+- **Rooms**: 25 classrooms across AU4-AU7 buildings
+- **Bookings**: Room reservation requests with approval workflow
+- **Attendance**: Class attendance records
+- **Issue Reports**: Classroom problem tracking
 
-## Can I connect a custom domain to my Lovable project?
+## Getting Started
 
-Yes, you can!
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start development server: `npm run dev`
+4. The backend (Supabase) is already configured and connected
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## User Accounts
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+You can create test accounts with different roles:
+
+- **Teacher**: Can book rooms, mark attendance, report issues
+- **SPOC**: Can manage rooms, approve bookings, resolve issues
+- **Admin**: Can view system analytics
+- **Student**: Can view schedule and attendance
+
+## Security
+
+- Row Level Security (RLS) policies enforce role-based access
+- All database operations are secured
+- Authentication handled by Supabase Auth
