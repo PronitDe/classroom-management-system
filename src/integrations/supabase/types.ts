@@ -14,7 +14,226 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance: {
+        Row: {
+          booking_id: string
+          created_at: string
+          date: string
+          id: string
+          present: number
+          remarks: string | null
+          room_id: string
+          slot: string
+          teacher_id: string
+          total: number
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          date: string
+          id?: string
+          present: number
+          remarks?: string | null
+          room_id: string
+          slot: string
+          teacher_id: string
+          total: number
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          present?: number
+          remarks?: string | null
+          room_id?: string
+          slot?: string
+          teacher_id?: string
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          remarks: string | null
+          room_id: string
+          slot: string
+          status: Database["public"]["Enums"]["booking_status"]
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          remarks?: string | null
+          room_id: string
+          slot: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          remarks?: string | null
+          room_id?: string
+          slot?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_reports: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          response: string | null
+          room_id: string
+          status: Database["public"]["Enums"]["issue_status"]
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          response?: string | null
+          room_id: string
+          status?: Database["public"]["Enums"]["issue_status"]
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          response?: string | null
+          room_id?: string
+          status?: Database["public"]["Enums"]["issue_status"]
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_reports_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issue_reports_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rooms: {
+        Row: {
+          building: string
+          capacity: number
+          created_at: string
+          id: string
+          is_active: boolean
+          remarks: string | null
+          room_no: string
+          type: Database["public"]["Enums"]["room_type"]
+          updated_at: string
+        }
+        Insert: {
+          building: string
+          capacity: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          remarks?: string | null
+          room_no: string
+          type: Database["public"]["Enums"]["room_type"]
+          updated_at?: string
+        }
+        Update: {
+          building?: string
+          capacity?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          remarks?: string | null
+          room_no?: string
+          type?: Database["public"]["Enums"]["room_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +242,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      booking_status:
+        | "PENDING"
+        | "APPROVED"
+        | "REJECTED"
+        | "COMPLETED"
+        | "CANCELLED"
+      issue_status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED"
+      room_type: "LECTURE_HALL" | "LAB" | "SEMINAR_ROOM" | "FACULTY_ROOM"
+      user_role: "TEACHER" | "SPOC" | "ADMIN" | "STUDENT"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +377,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      booking_status: [
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "COMPLETED",
+        "CANCELLED",
+      ],
+      issue_status: ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"],
+      room_type: ["LECTURE_HALL", "LAB", "SEMINAR_ROOM", "FACULTY_ROOM"],
+      user_role: ["TEACHER", "SPOC", "ADMIN", "STUDENT"],
+    },
   },
 } as const
