@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { ConflictWarning } from '@/components/ConflictWarning';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const TIME_SLOTS = [
   '9:00-10:30',
@@ -22,7 +26,7 @@ const TIME_SLOTS = [
 export default function BookRoom() {
   const { user } = useAuth();
   const [rooms, setRooms] = useState<any[]>([]);
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date>();
   const [slot, setSlot] = useState('');
   const [roomId, setRoomId] = useState('');
   const [remarks, setRemarks] = useState('');
@@ -54,11 +58,13 @@ export default function BookRoom() {
       return;
     }
 
+    const formattedDate = format(date, 'yyyy-MM-dd');
+
     const { data } = await supabase
       .from('bookings')
       .select('*, rooms(*), profiles!bookings_teacher_id_fkey(name)')
       .eq('room_id', roomId)
-      .eq('date', date)
+      .eq('date', formattedDate)
       .eq('slot', slot);
 
     const conflictList = (data || []).map(b => ({
@@ -78,13 +84,21 @@ export default function BookRoom() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!date) {
+      toast.error('Please select a date');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const formattedDate = format(date, 'yyyy-MM-dd');
+      
       const { error } = await supabase.from('bookings').insert({
         teacher_id: user?.id,
         room_id: roomId,
-        date,
+        date: formattedDate,
         slot,
         remarks,
         status: 'PENDING',
@@ -94,7 +108,7 @@ export default function BookRoom() {
 
       toast.success('Booking request submitted successfully');
       // Reset form
-      setDate('');
+      setDate(undefined);
       setSlot('');
       setRoomId('');
       setRemarks('');
