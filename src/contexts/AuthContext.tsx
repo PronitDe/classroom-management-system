@@ -112,13 +112,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
-      throw error;
+    try {
+      const { error } = await supabase.auth.signOut();
+      // Ignore "session not found" errors as session might already be expired
+      if (error && !error.message.includes('session')) {
+        toast.error(error.message);
+      }
+    } catch (error: any) {
+      // Gracefully handle any signout errors
+      console.error('Sign out error:', error);
+    } finally {
+      // Always clear state and navigate, regardless of API response
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      navigate('/login');
+      toast.success('Signed out successfully');
     }
-    navigate('/login');
-    toast.success('Signed out successfully');
   };
 
   return (
