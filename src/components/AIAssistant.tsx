@@ -183,9 +183,24 @@ What would you like help with?`;
         }
       }
     } catch (error) {
+      console.error('AI assistant error:', error);
+      
+      let errorMessage = 'Sorry, I encountered an error. Please try again.';
+      
+      if (error instanceof Error) {
+        // Show specific error messages for known issues
+        if (error.message.includes('Authentication') || error.message.includes('logged in')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('Network') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.message.includes('AI service')) {
+          errorMessage = 'The AI service is temporarily unavailable. Please try again later.';
+        }
+      }
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.' 
+        content: errorMessage
       }]);
     } finally {
       setIsLoading(false);
