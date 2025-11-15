@@ -28,7 +28,7 @@ export default function Login() {
       await signIn(email, password);
       navigate('/');
     } catch (error) {
-      console.error(error);
+      // Error already handled by signIn function
     } finally {
       setLoading(false);
     }

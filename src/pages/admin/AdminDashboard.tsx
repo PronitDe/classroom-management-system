@@ -8,6 +8,7 @@ import { Building2, Calendar, AlertCircle, TrendingUp, Activity, Bell, MessageSq
 import { Skeleton } from '@/components/ui/skeleton';
 import { DashboardChart } from '@/components/DashboardChart';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -140,7 +141,7 @@ export default function AdminDashboard() {
       }
       setMonthlyBookings(monthlyData);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }

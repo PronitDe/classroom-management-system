@@ -42,13 +42,22 @@ serve(async (req) => {
     }
 
     const { messages } = await req.json();
-    
-    console.log('AI Assistant request from user:', user.id);
 
-    // Get user profile and role
+    // Get user role from user_roles table
+    const { data: userRole } = await supabaseClient
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!userRole) {
+      throw new Error('User role not found');
+    }
+
+    // Get user profile
     const { data: profile } = await supabaseClient
       .from('profiles')
-      .select('role, name')
+      .select('name')
       .eq('id', user.id)
       .single();
 
@@ -56,12 +65,10 @@ serve(async (req) => {
       throw new Error('Profile not found');
     }
 
-    console.log('User role:', profile.role);
-
     // Fetch role-specific context
     let contextData = '';
     
-    if (profile.role === 'TEACHER') {
+    if (userRole.role === 'TEACHER') {
       const { data: bookings } = await supabaseClient
         .from('bookings')
         .select('*, rooms(room_no, building)')
@@ -97,7 +104,7 @@ ${attendance?.map(a => `- ${a.rooms?.room_no} on ${a.date}, ${a.present}/${a.tot
 OPEN ISSUES (${issues?.filter(i => i.status !== 'CLOSED').length || 0}):
 ${issues?.filter(i => i.status !== 'CLOSED').map(i => `- ${i.rooms?.room_no}: ${i.message} (${i.status})`).join('\n') || 'No open issues'}
 `;
-    } else if (profile.role === 'SPOC') {
+    } else if (userRole.role === 'SPOC') {
       const { data: pendingBookings } = await supabaseClient
         .from('bookings')
         .select('*, rooms(room_no), profiles(name)')
@@ -129,7 +136,7 @@ ${openIssues?.map(i => `- ${i.profiles?.name} reported issue in ${i.rooms?.room_
 INACTIVE ROOMS (${rooms?.length || 0}):
 ${rooms?.map(r => `- ${r.room_no} (${r.type})`).join('\n') || 'All rooms active'}
 `;
-    } else if (profile.role === 'ADMIN') {
+    } else if (userRole.role === 'ADMIN') {
       const { data: recentNotices } = await supabaseClient
         .from('notices')
         .select('title, created_at')
@@ -167,7 +174,7 @@ ${recentNotices?.map(n => `- ${n.title} (${new Date(n.created_at).toLocaleDateSt
 PENDING FEEDBACK:
 ${pendingFeedback?.map(f => `- ${f.category} feedback`).join('\n') || 'No pending feedback'}
 `;
-    } else if (profile.role === 'STUDENT') {
+    } else if (userRole.role === 'STUDENT') {
       const { data: feedback } = await supabaseClient
         .from('student_feedback')
         .select('category, status, created_at, response_message')
@@ -200,7 +207,7 @@ ${contextData}
 
 Your role is to:
 1. Answer questions about how to use the system
-2. Provide guidance based on the user's role (${profile.role})
+2. Provide guidance based on the user's role (${userRole.role})
 3. Help with common tasks and workflows
 4. Explain system features and policies
 5. Provide insights based on their data shown above
@@ -241,7 +248,6 @@ Keep responses clear and actionable.`;
         });
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
       return new Response(JSON.stringify({ error: "AI service error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -252,7 +258,6 @@ Keep responses clear and actionable.`;
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {
-    console.error("AI assistant error:", error);
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (roleError) throw roleError;
       setUserRole(roleData);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      toast.error('Failed to load user profile');
     } finally {
       setLoading(false);
     }
@@ -135,7 +135,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error: any) {
       // Gracefully handle any signout errors
-      console.error('Sign out error:', error);
     } finally {
       // Always clear state and navigate, regardless of API response
       setSession(null);

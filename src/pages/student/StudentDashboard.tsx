@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, Clock, TrendingUp, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 export default function StudentDashboard() {
   const [stats, setStats] = useState({
@@ -70,7 +71,7 @@ export default function StudentDashboard() {
 
       setAttendanceTrend(trend);
     } catch (error) {
-      console.error('Error fetching attendance data:', error);
+      toast.error('Failed to load attendance data');
     } finally {
       setLoading(false);
     }

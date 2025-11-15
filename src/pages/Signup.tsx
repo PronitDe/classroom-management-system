@@ -29,7 +29,7 @@ export default function Signup() {
       await signUp(email, password, name);
       navigate('/login');
     } catch (error) {
-      console.error(error);
+      // Error already handled by signUp function
     } finally {
       setLoading(false);
     }
