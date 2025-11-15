@@ -83,9 +83,9 @@ export default function ManageBookings() {
                 ) : (
                   bookings.map((booking) => (
                     <TableRow key={booking.id}>
-                      <TableCell>{booking.profiles.name}</TableCell>
+                      <TableCell>{booking.profiles?.name || 'Unknown'}</TableCell>
                       <TableCell>
-                        {booking.rooms.building} {booking.rooms.room_no}
+                        {booking.rooms?.building} {booking.rooms?.room_no}
                       </TableCell>
                       <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.slot}</TableCell>
