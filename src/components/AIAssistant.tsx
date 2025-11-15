@@ -54,8 +54,24 @@ What would you like help with?`;
     setIsLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No session');
+      // Get session with auth check
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication error. Please try logging in again.');
+      }
+      
+      if (!session) {
+        console.error('No session found');
+        throw new Error('You must be logged in to use the AI assistant.');
+      }
+
+      console.log('Calling AI assistant...', {
+        url: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`,
+        hasToken: !!session.access_token,
+        messageCount: [...messages, userMessage].length
+      });
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`,
@@ -71,7 +87,12 @@ What would you like help with?`;
         }
       );
 
+      console.log('AI assistant response status:', response.status);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('AI assistant error:', { status: response.status, body: errorText });
+        
         if (response.status === 429) {
           setMessages(prev => [...prev, { 
             role: 'assistant', 
@@ -79,7 +100,24 @@ What would you like help with?`;
           }]);
           return;
         }
-        throw new Error('Failed to get response');
+        
+        if (response.status === 402) {
+          setMessages(prev => [...prev, { 
+            role: 'assistant', 
+            content: 'The AI service requires payment. Please contact your administrator.' 
+          }]);
+          return;
+        }
+        
+        if (response.status === 401 || response.status === 403) {
+          setMessages(prev => [...prev, { 
+            role: 'assistant', 
+            content: 'Authentication failed. Please try logging out and back in.' 
+          }]);
+          return;
+        }
+        
+        throw new Error(`AI service error (${response.status}): ${errorText}`);
       }
 
       if (!response.body) throw new Error('No response body');
