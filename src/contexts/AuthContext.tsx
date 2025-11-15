@@ -21,7 +21,7 @@ interface AuthContextType {
   profile: Profile | null;
   userRole: UserRoleData | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string, requestedRole?: 'STUDENT' | 'TEACHER') => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -107,13 +107,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     toast.success('Signed in successfully');
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string, requestedRole: 'STUDENT' | 'TEACHER' = 'STUDENT') => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name,
+          requested_role: requestedRole,
         },
       },
     });

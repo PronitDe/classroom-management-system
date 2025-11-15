@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Eye, EyeOff } from 'lucide-react';
 
 export default function Signup() {
@@ -12,6 +13,7 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
+  const [role, setRole] = useState<'STUDENT' | 'TEACHER'>('STUDENT');
   const [loading, setLoading] = useState(false);
   const { signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signUp(email, password, name);
+      await signUp(email, password, name, role);
       navigate('/login');
     } catch (error) {
       // Error already handled by signUp function
@@ -97,6 +99,18 @@ export default function Signup() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={role} onValueChange={(value) => setRole(value as 'STUDENT' | 'TEACHER')}>
+                <SelectTrigger id="role" className="w-full bg-background transition-all focus:ring-2 focus:ring-primary">
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="STUDENT">Student</SelectItem>
+                  <SelectItem value="TEACHER">Teacher</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
               {loading ? 'Creating account...' : 'Sign Up'}
