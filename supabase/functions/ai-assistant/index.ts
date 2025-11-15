@@ -7,13 +7,29 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('🚀 AI Assistant function invoked at', new Date().toISOString());
+  console.log('🚀 Request method:', req.method);
+  console.log('🚀 Request headers:', Object.fromEntries(req.headers.entries()));
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  if (req.method !== 'POST') {
+    console.error('❌ Invalid method:', req.method);
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { 
+        status: 405, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
   }
 
   try {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
+      console.error('❌ LOVABLE_API_KEY not configured');
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
@@ -31,18 +47,49 @@ serve(async (req) => {
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      console.error('❌ No authorization header');
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
+    console.log('🔐 Verifying user authentication...');
     const { data: { user }, error: authError } = await authClient.auth.getUser(
       authHeader.replace('Bearer ', '')
     );
     
     if (authError || !user) {
-      throw new Error('Unauthorized');
+      console.error('❌ Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    const { messages } = await req.json();
+    console.log('✅ User authenticated:', user.id);
+
+    const requestBody = await req.json();
+    const { messages } = requestBody;
+
+    if (!messages || !Array.isArray(messages)) {
+      console.error('❌ Invalid messages format');
+      return new Response(
+        JSON.stringify({ error: 'Invalid messages format' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    console.log('📝 Received', messages.length, 'messages');
 
     // Service role client for internal queries (bypasses RLS)
     const supabaseClient = createClient(

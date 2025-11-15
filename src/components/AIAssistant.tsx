@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Send, Loader2, Bot, User } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { X, Send, Loader2, Bot, User, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -16,10 +17,50 @@ interface AIAssistantProps {
   onClose: () => void;
 }
 
+// Timeout wrapper for promises
+function withTimeout<T>(promise: Promise<T>, ms = 30000): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error('Request timed out'));
+    }, ms);
+    
+    promise
+      .then((res) => {
+        clearTimeout(timeoutId);
+        resolve(res);
+      })
+      .catch((err) => {
+        clearTimeout(timeoutId);
+        reject(err);
+      });
+  });
+}
+
+// Helper function to call AI assistant
+async function callAssistant(messages: Message[]) {
+  console.log('🤖 AI Assistant: Calling edge function with', messages.length, 'messages');
+  console.log('🤖 AI Assistant: Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+  
+  const { data, error } = await supabase.functions.invoke('ai-assistant', {
+    body: { messages },
+  });
+
+  console.log('🤖 AI Assistant: Response data:', data);
+  console.log('🤖 AI Assistant: Response error:', error);
+
+  if (error) {
+    console.error('🤖 AI Assistant invoke error:', error);
+    throw error;
+  }
+
+  return data;
+}
+
 export function AIAssistant({ onClose }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { profile, userRole } = useAuth();
 
