@@ -280,7 +280,11 @@ Keep responses clear and actionable.`;
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+    console.error('AI Assistant error:', error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error('Error details:', { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
+    
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
