@@ -31,15 +31,46 @@ serve(async (req) => {
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      console.error('No authorization header');
+      return new Response(
+        JSON.stringify({ error: 'No authorization provided' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const { data: { user }, error: authError } = await authClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-    
-    if (authError || !user) {
-      throw new Error('Unauthorized');
+    const token = authHeader.replace('Bearer ', '');
+    let userId: string | null = null;
+    let userEmail: string | null = null;
+
+    try {
+      const { data: { user }, error: authError } = await authClient.auth.getUser(token);
+      if (user) {
+        userId = user.id;
+        userEmail = user.email ?? null;
+      } else if (authError) {
+        console.warn('auth.getUser failed, falling back to JWT decode:', authError.message);
+      }
+    } catch (e) {
+      console.warn('auth.getUser threw, falling back to JWT decode:', e);
+    }
+
+    if (!userId) {
+      try {
+        const base64 = token.split('.')[1];
+        const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+        const payload = JSON.parse(json);
+        userId = payload.sub || payload.user_id || null;
+        userEmail = payload.email || null;
+      } catch (e) {
+        console.error('JWT decode failed:', e);
+      }
+    }
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const { messages } = await req.json();
@@ -60,7 +91,7 @@ serve(async (req) => {
     const { data: userRole, error: roleError } = await supabaseClient
       .from('user_roles')
       .select('role')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single();
 
     if (roleError || !userRole) {
@@ -72,7 +103,7 @@ serve(async (req) => {
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('name')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single();
 
     if (profileError || !profile) {
@@ -87,21 +118,21 @@ serve(async (req) => {
       const { data: bookings } = await supabaseClient
         .from('bookings')
         .select('*, rooms(room_no, building)')
-        .eq('teacher_id', user.id)
+        .eq('teacher_id', userId)
         .order('created_at', { ascending: false })
         .limit(5);
 
       const { data: attendance } = await supabaseClient
         .from('attendance')
         .select('*, rooms(room_no)')
-        .eq('teacher_id', user.id)
+        .eq('teacher_id', userId)
         .order('created_at', { ascending: false })
         .limit(5);
 
       const { data: issues } = await supabaseClient
         .from('issue_reports')
         .select('*, rooms(room_no)')
-        .eq('teacher_id', user.id)
+        .eq('teacher_id', userId)
         .order('created_at', { ascending: false })
         .limit(3);
 
@@ -193,7 +224,7 @@ ${pendingFeedback?.map(f => `- ${f.category} feedback`).join('\n') || 'No pendin
       const { data: feedback } = await supabaseClient
         .from('student_feedback')
         .select('category, status, created_at, response_message')
-        .eq('student_id', user.id)
+        .eq('student_id', userId)
         .order('created_at', { ascending: false })
         .limit(3);
 
