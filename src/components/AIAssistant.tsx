@@ -90,106 +90,33 @@ What would you like help with?`;
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
+    const messagesToSend = [...messages, userMessage];
+    
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    setErrorMessage(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No session');
+      const { data, error } = await supabase.functions.invoke('ai-assistant', {
+        body: { messages: messagesToSend },
+      });
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            messages: [...messages, userMessage],
-          }),
-        }
-      );
+      if (error) throw error;
 
-      if (!response.ok) {
-        if (response.status === 429) {
-          setMessages(prev => [...prev, { 
-            role: 'assistant', 
-            content: 'I\'m receiving too many requests right now. Please try again in a moment.' 
-          }]);
-          return;
-        }
-        throw new Error('Failed to get response');
-      }
+      const assistantResponse = data?.response;
+      if (!assistantResponse) throw new Error('No response');
 
-      if (!response.body) throw new Error('No response body');
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantContent = '';
-
-      const upsertAssistant = (chunk: string) => {
-        assistantContent += chunk;
-        setMessages(prev => {
-          const lastMsg = prev[prev.length - 1];
-          if (lastMsg?.role === 'assistant') {
-            return prev.map((m, i) => 
-              i === prev.length - 1 ? { ...m, content: assistantContent } : m
-            );
-          }
-          return [...prev, { role: 'assistant', content: assistantContent }];
-        });
-      };
-
-      let buffer = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        
-        let newlineIndex: number;
-        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-          let line = buffer.slice(0, newlineIndex);
-          buffer = buffer.slice(newlineIndex + 1);
-
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || line.trim() === '') continue;
-          if (!line.startsWith('data: ')) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') break;
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) upsertAssistant(content);
-          } catch {
-            buffer = line + '\n' + buffer;
-            break;
-          }
-        }
-      }
-
-      // Flush remaining buffer
-      if (buffer.trim()) {
-        for (let raw of buffer.split('\n')) {
-          if (!raw || raw.startsWith(':') || !raw.startsWith('data: ')) continue;
-          const jsonStr = raw.slice(6).trim();
-          if (jsonStr === '[DONE]') continue;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) upsertAssistant(content);
-          } catch {}
-        }
-      }
-    } catch (error) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.' 
-      }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse }]);
+    } catch (error: any) {
+      console.error('AI Assistant failed:', error);
+      let errorMsg = 'Sorry, I encountered an error. Please try again.';
+      
+      if (error.message?.includes('429')) errorMsg = 'Too many requests. Please wait and try again.';
+      else if (error.message?.includes('402')) errorMsg = 'AI service temporarily unavailable.';
+      else if (error.message?.includes('401')) errorMsg = 'Please log out and back in.';
+      
+      setErrorMessage(errorMsg);
     } finally {
       setIsLoading(false);
     }
