@@ -7,6 +7,9 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('🚀 AI Assistant invoked:', new Date().toISOString());
+  console.log('🚀 Method:', req.method);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -14,7 +17,11 @@ serve(async (req) => {
   try {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+      console.error('❌ LOVABLE_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Auth client for user verification
@@ -30,19 +37,51 @@ serve(async (req) => {
     );
 
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
-    const { data: { user }, error: authError } = await authClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
+    console.log('🔐 Auth header present:', !!authHeader);
     
-    if (authError || !user) {
-      throw new Error('Unauthorized');
+    if (!authHeader) {
+      console.error('❌ No authorization header');
+      return new Response(
+        JSON.stringify({ error: 'No authorization provided' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const { messages } = await req.json();
+    const token = authHeader.replace('Bearer ', '');
+    console.log('🔐 Token length:', token.length);
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser(token);
+    
+    if (authError) {
+      console.error('❌ Auth error:', authError.message, authError.status);
+      return new Response(
+        JSON.stringify({ error: 'Authentication failed: ' + authError.message }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!user) {
+      console.error('❌ No user returned from auth');
+      return new Response(
+        JSON.stringify({ error: 'User not found' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('✅ User authenticated:', user.id, user.email);
+
+    const requestBody = await req.json();
+    const { messages } = requestBody;
+    
+    if (!messages || !Array.isArray(messages)) {
+      console.error('❌ Invalid messages format');
+      return new Response(
+        JSON.stringify({ error: 'Invalid request format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log('📝 Processing', messages.length, 'messages');
 
     // Service role client for internal queries (bypasses RLS)
     const supabaseClient = createClient(
@@ -231,9 +270,9 @@ Be concise, friendly, and helpful. Always consider their role when providing gui
 If they ask about their data, reference the context provided above.
 Keep responses clear and actionable.`;
 
-    console.log('Calling Lovable AI...');
+    console.log('🤖 Calling Lovable AI...');
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -245,37 +284,62 @@ Keep responses clear and actionable.`;
           { role: "system", content: systemPrompt },
           ...messages,
         ],
-        stream: true,
+        stream: false, // Use non-streaming for reliability
       }),
     });
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error('❌ AI API error:', aiResponse.status, errorText);
+      
+      if (aiResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Too many requests. Please wait a moment." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI service requires additional credits." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (aiResponse.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "AI service temporarily unavailable." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
-      const errorText = await response.text();
-      return new Response(JSON.stringify({ error: "AI service error" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      
+      return new Response(
+        JSON.stringify({ error: "AI service error" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
-    });
+    const aiData = await aiResponse.json();
+    const assistantMessage = aiData.choices?.[0]?.message?.content;
+
+    if (!assistantMessage) {
+      console.error('❌ No content in AI response');
+      return new Response(
+        JSON.stringify({ error: "No response from AI" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log('✅ AI response generated successfully');
+
+    return new Response(
+      JSON.stringify({ response: assistantMessage }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error('❌ Unexpected error:', error);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
+    
+    return new Response(
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });

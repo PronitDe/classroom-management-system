@@ -49,13 +49,59 @@ What would you like help with?`;
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
+    const messagesToSend = [...messages, userMessage];
+    
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No session');
+      // Verify session before calling function
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw new Error('Session expired. Please refresh the page.');
+      }
+      
+      if (!session) {
+        console.error('No session found');
+        throw new Error('Not logged in. Please refresh the page.');
+      }
+      
+      console.log('Calling AI assistant with valid session for user:', session.user.id);
+      
+      // Use supabase.functions.invoke instead of fetch
+      const { data, error } = await supabase.functions.invoke('ai-assistant', {
+        body: { messages: messagesToSend },
+      });
+      
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to get AI response');
+      }
+      
+      const assistantResponse = data?.response;
+      
+      if (!assistantResponse || typeof assistantResponse !== 'string') {
+        throw new Error('Invalid response format from AI');
+      }
+      
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: assistantResponse
+      }]);
+      
+    } catch (error: any) {
+      console.error('AI Assistant error:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Sorry, I encountered an error: ${error.message || 'Unknown error'}. Please try again or refresh the page if the problem persists.`
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`,
