@@ -17,7 +17,8 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const supabaseClient = createClient(
+    // Auth client for user verification
+    const authClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
@@ -33,7 +34,7 @@ serve(async (req) => {
       throw new Error('No authorization header');
     }
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
+    const { data: { user }, error: authError } = await authClient.auth.getUser(
       authHeader.replace('Bearer ', '')
     );
     
@@ -43,25 +44,39 @@ serve(async (req) => {
 
     const { messages } = await req.json();
 
+    // Service role client for internal queries (bypasses RLS)
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      }
+    );
+
     // Get user role from user_roles table
-    const { data: userRole } = await supabaseClient
+    const { data: userRole, error: roleError } = await supabaseClient
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .single();
 
-    if (!userRole) {
+    if (roleError || !userRole) {
+      console.error('Role fetch error:', roleError);
       throw new Error('User role not found');
     }
 
     // Get user profile
-    const { data: profile } = await supabaseClient
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('name')
       .eq('id', user.id)
       .single();
 
-    if (!profile) {
+    if (profileError || !profile) {
+      console.error('Profile fetch error:', profileError);
       throw new Error('Profile not found');
     }
 
