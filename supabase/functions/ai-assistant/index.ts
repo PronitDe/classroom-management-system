@@ -12,8 +12,11 @@ serve(async (req) => {
   }
 
   try {
+    console.log('AI Assistant called');
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
+      console.error('LOVABLE_API_KEY not configured');
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
@@ -31,6 +34,7 @@ serve(async (req) => {
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('No authorization header');
       throw new Error('No authorization header');
     }
 
@@ -39,8 +43,11 @@ serve(async (req) => {
     );
     
     if (authError || !user) {
+      console.error('Auth error:', authError);
       throw new Error('Unauthorized');
     }
+    
+    console.log('User authenticated:', user.id);
 
     const { messages } = await req.json();
 
