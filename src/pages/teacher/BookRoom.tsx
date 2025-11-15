@@ -16,13 +16,7 @@ import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { bookingSchema } from '@/lib/validations';
 
-const TIME_SLOTS = [
-  '9:00-10:30',
-  '10:30-12:00',
-  '12:00-13:30',
-  '14:00-15:30',
-  '15:30-17:00',
-];
+import { TIME_SLOTS } from '@/lib/constants';
 
 export default function BookRoom() {
   const { user } = useAuth();

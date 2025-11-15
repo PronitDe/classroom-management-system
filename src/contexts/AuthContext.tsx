@@ -9,6 +9,9 @@ type UserRole = 'TEACHER' | 'SPOC' | 'ADMIN' | 'STUDENT';
 interface Profile {
   id: string;
   name: string;
+}
+
+interface UserRoleData {
   role: UserRole;
 }
 
@@ -16,8 +19,9 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   profile: Profile | null;
+  userRole: UserRoleData | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -28,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userRole, setUserRole] = useState<UserRoleData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -62,14 +67,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch profile data
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
+      if (profileError) throw profileError;
+      setProfile(profileData);
+
+      // Fetch user role from user_roles table
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      if (roleError) throw roleError;
+      setUserRole(roleData);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -91,14 +107,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     toast.success('Signed in successfully');
   };
 
-  const signUp = async (email: string, password: string, name: string, role: UserRole) => {
+  const signUp = async (email: string, password: string, name: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name,
-          role,
         },
       },
     });
@@ -126,13 +141,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null);
       setUser(null);
       setProfile(null);
+      setUserRole(null);
       navigate('/login');
       toast.success('Signed out successfully');
     }
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, signIn, signUp, signOut, loading }}>
+    <AuthContext.Provider value={{ session, user, profile, userRole, signIn, signUp, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );

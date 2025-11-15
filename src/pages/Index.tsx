@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, userRole, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && user && profile) {
+    if (!loading && user && userRole) {
       // Redirect to appropriate dashboard based on role
-      switch (profile.role) {
+      switch (userRole.role) {
         case 'TEACHER':
           navigate('/teacher/dashboard');
           break;
@@ -28,7 +28,7 @@ const Index = () => {
     } else if (!loading && !user) {
       navigate('/login');
     }
-  }, [user, profile, loading, navigate]);
+  }, [user, userRole, loading, navigate]);
 
   if (loading) {
     return (

@@ -1,3 +1,4 @@
+import { getStatusBadgeVariant } from '@/lib/badgeHelpers';
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,23 +40,6 @@ export default function History() {
     setAttendanceRecords(attendanceData.data || []);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'warning';
-      case 'APPROVED':
-        return 'success';
-      case 'COMPLETED':
-        return 'default';
-      case 'REJECTED':
-        return 'destructive';
-      case 'CANCELLED':
-        return 'secondary';
-      default:
-        return 'default';
-    }
-  };
-
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fade-in">
@@ -94,7 +78,7 @@ export default function History() {
                       <TableCell>{booking.rooms.building} {booking.rooms.room_no}</TableCell>
                       <TableCell className="hidden sm:table-cell">{booking.slot}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(booking.status) as any}>
+                        <Badge variant={getStatusBadgeVariant(booking.status)}>
                           {booking.status}
                         </Badge>
                       </TableCell>

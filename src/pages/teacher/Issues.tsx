@@ -1,3 +1,4 @@
+import { getStatusBadgeVariant } from '@/lib/badgeHelpers';
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -178,7 +179,7 @@ export default function Issues() {
                       <TableCell className="font-medium">{issue.rooms.building} {issue.rooms.room_no}</TableCell>
                       <TableCell className="hidden sm:table-cell max-w-xs truncate">{issue.message}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(issue.status) as any}>
+                        <Badge variant={getStatusBadgeVariant(issue.status)}>
                           {issue.status.replace('_', ' ')}
                         </Badge>
                       </TableCell>

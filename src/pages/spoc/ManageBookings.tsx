@@ -1,3 +1,4 @@
+import { getStatusBadgeVariant } from '@/lib/badgeHelpers';
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,21 +40,6 @@ export default function ManageBookings() {
 
     toast.success(`Booking ${status.toLowerCase()}`);
     fetchBookings();
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'warning';
-      case 'APPROVED':
-        return 'success';
-      case 'REJECTED':
-        return 'destructive';
-      case 'COMPLETED':
-        return 'default';
-      default:
-        return 'secondary';
-    }
   };
 
   return (
@@ -104,7 +90,7 @@ export default function ManageBookings() {
                       <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.slot}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(booking.status) as any}>
+                        <Badge variant={getStatusBadgeVariant(booking.status)}>
                           {booking.status}
                         </Badge>
                       </TableCell>

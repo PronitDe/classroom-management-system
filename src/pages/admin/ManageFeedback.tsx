@@ -1,3 +1,4 @@
+import { getStatusBadgeVariant } from '@/lib/badgeHelpers';
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,15 +92,6 @@ export default function ManageFeedback() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive"> = {
-      OPEN: "destructive",
-      IN_REVIEW: "secondary",
-      RESOLVED: "default",
-    };
-    return <Badge variant={variants[status] || "secondary"}>{status}</Badge>;
-  };
-
   const filteredFeedbacks = feedbacks.filter(fb => {
     const matchesSearch = 
       fb.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -183,7 +175,11 @@ export default function ManageFeedback() {
                         <TableCell className="hidden sm:table-cell">
                           {format(new Date(feedback.created_at), 'MMM dd, yyyy')}
                         </TableCell>
-                        <TableCell>{getStatusBadge(feedback.status)}</TableCell>
+                        <TableCell>{getStatusBadgeVariant(feedback.status) && (
+                          <Badge variant={getStatusBadgeVariant(feedback.status)}>
+                            {feedback.status}
+                          </Badge>
+                        )}</TableCell>
                         <TableCell className="text-right">
                           <Dialog>
                             <DialogTrigger asChild>

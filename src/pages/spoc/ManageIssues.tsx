@@ -1,3 +1,4 @@
+import { getStatusBadgeVariant } from '@/lib/badgeHelpers';
 import { useEffect, useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,21 +52,6 @@ export default function ManageIssues() {
     fetchIssues();
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'OPEN':
-        return 'destructive';
-      case 'IN_PROGRESS':
-        return 'warning';
-      case 'RESOLVED':
-        return 'success';
-      case 'CLOSED':
-        return 'secondary';
-      default:
-        return 'default';
-    }
-  };
-
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fade-in">
@@ -113,7 +99,7 @@ export default function ManageIssues() {
                       </TableCell>
                       <TableCell className="max-w-xs truncate">{issue.message}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusColor(issue.status) as any}>
+                        <Badge variant={getStatusBadgeVariant(issue.status)}>
                           {issue.status.replace('_', ' ')}
                         </Badge>
                       </TableCell>

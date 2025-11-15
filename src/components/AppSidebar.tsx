@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 export function AppSidebar() {
-  const { profile, signOut } = useAuth();
+  const { profile, userRole, signOut } = useAuth();
 
   const teacherItems = [
     { title: 'Dashboard', url: '/teacher/dashboard', icon: Home },
@@ -52,7 +52,7 @@ export function AppSidebar() {
   ];
 
   const getMenuItems = () => {
-    switch (profile?.role) {
+    switch (userRole?.role) {
       case 'TEACHER':
         return teacherItems;
       case 'SPOC':
@@ -87,7 +87,7 @@ export function AppSidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-sidebar-foreground truncate">{profile?.name || 'User'}</h2>
-              <Badge className={`text-xs mt-1 ${getRoleBadgeColor(profile?.role || '')}`}>{profile?.role}</Badge>
+              <Badge className={`text-xs mt-1 ${getRoleBadgeColor(userRole?.role || '')}`}>{userRole?.role}</Badge>
             </div>
           </div>
         </div>
@@ -115,7 +115,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Student External Links */}
-        {profile?.role === 'STUDENT' && (
+        {userRole?.role === 'STUDENT' && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-sidebar-foreground/70">External Links</SidebarGroupLabel>
             <SidebarGroupContent>
