@@ -26,7 +26,7 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signUp(email, password, name, 'STUDENT');
+      await signUp(email, password, name);
       navigate('/login');
     } catch (error) {
       console.error(error);

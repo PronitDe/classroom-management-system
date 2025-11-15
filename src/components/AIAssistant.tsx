@@ -21,7 +21,7 @@ export function AIAssistant({ onClose }: AIAssistantProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { profile } = useAuth();
+  const { profile, userRole } = useAuth();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -31,19 +31,19 @@ export function AIAssistant({ onClose }: AIAssistantProps) {
 
   useEffect(() => {
     // Initial greeting
-    if (profile) {
+    if (profile && userRole) {
       const greeting = `Hello ${profile.name}! I'm your AI assistant for the SOET Smart CMS. I can help you with:
 
-${profile.role === 'TEACHER' ? '• Managing room bookings\n• Recording attendance\n• Reporting issues\n• Understanding your booking history' : ''}
-${profile.role === 'SPOC' ? '• Approving bookings\n• Managing rooms\n• Handling issue reports\n• Viewing system statistics' : ''}
-${profile.role === 'ADMIN' ? '• Managing notices\n• Reviewing feedback\n• System administration\n• Viewing analytics' : ''}
-${profile.role === 'STUDENT' ? '• Submitting feedback\n• Viewing notices\n• Checking your feedback history\n• Understanding system features' : ''}
+${userRole.role === 'TEACHER' ? '• Managing room bookings\n• Recording attendance\n• Reporting issues\n• Understanding your booking history' : ''}
+${userRole.role === 'SPOC' ? '• Approving bookings\n• Managing rooms\n• Handling issue reports\n• Viewing system statistics' : ''}
+${userRole.role === 'ADMIN' ? '• Managing notices\n• Reviewing feedback\n• System administration\n• Viewing analytics' : ''}
+${userRole.role === 'STUDENT' ? '• Submitting feedback\n• Viewing notices\n• Checking your feedback history\n• Understanding system features' : ''}
 
 What would you like help with?`;
       
       setMessages([{ role: 'assistant', content: greeting }]);
     }
-  }, [profile]);
+  }, [profile, userRole]);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;

@@ -1,3 +1,4 @@
+import { getStatusBadgeVariant } from '@/lib/badgeHelpers';
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,15 +101,6 @@ export default function Feedback() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive"> = {
-      OPEN: "destructive",
-      IN_REVIEW: "secondary",
-      RESOLVED: "default",
-    };
-    return <Badge variant={variants[status] || "secondary"}>{status}</Badge>;
-  };
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -185,7 +177,9 @@ export default function Feedback() {
                           {format(new Date(feedback.created_at), 'MMM dd, yyyy HH:mm')}
                         </p>
                       </div>
-                      {getStatusBadge(feedback.status)}
+                      <Badge variant={getStatusBadgeVariant(feedback.status)}>
+                        {feedback.status}
+                      </Badge>
                     </div>
                     <p className="text-sm bg-muted/20 p-3 rounded">{feedback.message}</p>
                     {feedback.response_message && (

@@ -203,21 +203,18 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id: string
           name: string
-          role: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Relationships: []
@@ -309,19 +306,40 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      user_has_role: {
+      has_role: {
         Args: {
-          check_role: Database["public"]["Enums"]["user_role"]
-          user_id: string
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
         }
         Returns: boolean
       }
-      user_is_privileged: { Args: { user_id: string }; Returns: boolean }
+      user_is_privileged: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       booking_status:
