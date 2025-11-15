@@ -93,9 +93,9 @@ export default function ManageIssues() {
                 ) : (
                   issues.map((issue) => (
                     <TableRow key={issue.id}>
-                      <TableCell>{issue.profiles.name}</TableCell>
+                      <TableCell>{issue.profiles?.name || 'Unknown'}</TableCell>
                       <TableCell>
-                        {issue.rooms.building} {issue.rooms.room_no}
+                        {issue.rooms?.building} {issue.rooms?.room_no}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">{issue.message}</TableCell>
                       <TableCell>
